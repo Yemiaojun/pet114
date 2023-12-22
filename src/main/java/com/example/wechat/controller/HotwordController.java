@@ -62,4 +62,6 @@ public class HotwordController {
         hotwordService.analyzeAndUpdateHotwords(topN);
         return Result.okGetString("文本分析完成，热点词已更新");
     }
+
+
 }

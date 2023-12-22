@@ -13,5 +13,7 @@ public class WechatAccount {
     private int totalRead; // 每周总阅读量
     private String domain; // 领域（例如美妆、宠物等）
 
+    private String headpic;//链接
+
     // 构造函数、getter和setter
 }

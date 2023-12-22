@@ -36,6 +36,7 @@ public class HotwordService {
         return (hotword != null) ? hotword.getCloutList() : new double[5];
     }
 
+
     // 更新指定热点词的热度
     public void updateHotwordClout(String word, double newClout) {
         Hotword hotword = mongoTemplate.findOne(Query.query(Criteria.where("word").is(word)), Hotword.class);
@@ -104,5 +105,9 @@ public class HotwordService {
         }
         return hotword;
     }
+
+  //为实现接口
+ // 先更新词汇今天热度为0.6x上一天，统计昨天一天文章中的热点词之后，把新的值加上去开头
+
 
 }
