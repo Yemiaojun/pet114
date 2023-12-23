@@ -1,10 +1,12 @@
 package com.example.wechat.model;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.bson.types.ObjectId;
 import java.util.Arrays;
 
+@Data
 @Document
 public class Hotword {
     @Id
@@ -14,56 +16,16 @@ public class Hotword {
     private int totalAppearance; // 在文章中的总出现次数
     private double currentHeat; // 当前热度
 
+
     public Hotword() {
         // 默认构造函数
-        Arrays.fill(cloutList, 0); // 初始化数组值为0
+        Arrays.fill(cloutList, 0.0); // 初始化数组值为0.0
     }
 
     public Hotword(String word, int totalAppearance) {
         this.word = word;
         this.totalAppearance = totalAppearance;
-        Arrays.fill(cloutList, 0); // 初始化数组值为0
-    }
-
-    // Getter 和 Setter 方法
-    public ObjectId getId() {
-        return id;
-    }
-
-    public void setId(ObjectId id) {
-        this.id = id;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public void setWord(String word) {
-        this.word = word;
-    }
-
-    public double[] getCloutList() {
-        return cloutList;
-    }
-
-    public void setCloutList(double[] cloutList) {
-        this.cloutList = cloutList;
-    }
-
-    public int getTotalAppearance() {
-        return totalAppearance;
-    }
-
-    public void setTotalAppearance(int totalAppearance) {
-        this.totalAppearance = totalAppearance;
-    }
-
-    public double getCurrentHeat() {
-        return currentHeat;
-    }
-
-    public void setCurrentHeat(double currentHeat) {
-        this.currentHeat = currentHeat;
+        Arrays.fill(cloutList, 0.0); // 初始化数组值为0.0
     }
 
     // 增加当前热度
@@ -73,12 +35,12 @@ public class Hotword {
 
     // 更新热度值到cloutList并重置当前热度
     public void updateAndResetHeat() {
-        updateClout(this.currentHeat); // 注意：此处将double转换为int，可能会有精度损失
+        updateClout(this.currentHeat);
         this.currentHeat = 0.0;
     }
 
     // 更新热度值
-    public void updateClout(double clout) {
+    private void updateClout(double clout) {
         // 向右移动数组中的元素，移除最后一个元素
         for (int i = cloutList.length - 1; i > 0; i--) {
             cloutList[i] = cloutList[i - 1];

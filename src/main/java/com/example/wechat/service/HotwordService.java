@@ -1,6 +1,8 @@
 package com.example.wechat.service;
 
+import com.example.wechat.model.Article;
 import com.example.wechat.model.Hotword;
+import com.example.wechat.model.HotwordDTO;
 import keyword.Keyword;
 import keyword.TFIDFAnalyzer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,8 +109,65 @@ public class HotwordService {
         return hotword;
     }
 
-  //为实现接口
+  //未实现服务
  // 先更新词汇今天热度为0.6x上一天，统计昨天一天文章中的热点词之后，把新的值加上去开头
+
+    public void updateData(String content,int topN) {
+        TFIDFAnalyzer tfidfAnalyzer = new TFIDFAnalyzer();
+        List<Keyword> keywords = tfidfAnalyzer.analyze(content, topN);
+
+        for (Keyword keyword : keywords) {
+            Hotword hotword = getOrCreateHotword(keyword.getName());
+            hotword.addHeat(keyword.getTfidfvalue());
+            mongoTemplate.save(hotword);
+        }
+    }
+
+
+    public void processArticlesAndUpdateHotwords() {
+        List<Hotword> allHotwords = mongoTemplate.findAll(Hotword.class);
+        for (Hotword hotword : allHotwords) {
+            hotword.setCurrentHeat(0);
+            mongoTemplate.save(hotword);
+        }
+        // 获取所有未处理过的文章
+        List<Article> articles = mongoTemplate.find(Query.query(Criteria.where("visit").is(false)), Article.class);
+
+        for (Article article : articles) {
+            // 处理每篇文章
+            updateData(article.getContent(), 10);
+            article.setVisit(true); // 标记为已处理
+            mongoTemplate.save(article);
+        }
+
+        // 更新所有Hotword的热度
+        List<Hotword> hotwords = mongoTemplate.findAll(Hotword.class);
+        for (Hotword hotword : hotwords) {
+            double newClout = 0.6 * hotword.getCloutList()[0] + hotword.getCurrentHeat();
+            updateHotwordClout(hotword.getWord(), newClout);
+            hotword.setCurrentHeat(0); // 重置当前热度
+            mongoTemplate.save(hotword);
+        }
+    }
+
+    public List<HotwordDTO> getTopHotwords() {
+        Sort sort = Sort.by(Sort.Direction.DESC, "cloutList[0]");
+        List<Hotword> hotwords = mongoTemplate.find(Query.query(new Criteria()).with(sort).limit(15), Hotword.class);
+
+        List<HotwordDTO> hotwordDTOs = new ArrayList<>();
+        for (int i = 0; i < hotwords.size(); i++) {
+            Hotword hotword = hotwords.get(i);
+            HotwordDTO dto = new HotwordDTO();
+            dto.setId(hotword.getId());
+            dto.setRank(i + 1);
+            dto.setContent(hotword.getWord());
+            dto.setHeat(hotword.getCloutList()[0]);
+            dto.setTrend(hotword.getCloutList()[0] > hotword.getCloutList()[1] ? "上升" : "下降");
+            hotwordDTOs.add(dto);
+        }
+        return hotwordDTOs;
+    }
+
 
 
 }

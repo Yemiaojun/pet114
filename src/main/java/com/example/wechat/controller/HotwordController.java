@@ -1,5 +1,6 @@
 package com.example.wechat.controller;
 
+import com.example.wechat.model.HotwordDTO;
 import com.example.wechat.service.HotwordService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -62,6 +63,14 @@ public class HotwordController {
         hotwordService.analyzeAndUpdateHotwords(topN);
         return Result.okGetString("文本分析完成，热点词已更新");
     }
+    @ApiOperation(value="获取热门词汇", notes = "返回按热度排序的热门词汇列表")
+    @GetMapping("/hotPoints")
+    public String getTopHotwords() {
+        List<HotwordDTO> topHotwords = hotwordService.getTopHotwords();
+        return Result.okGetStringByData("获取热点词成功", topHotwords);
+    }
+
+
 
 
 }
