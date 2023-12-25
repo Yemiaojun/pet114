@@ -145,8 +145,6 @@ public class HotwordService {
         for (Hotword hotword : hotwords) {
             double newClout = 0.6 * hotword.getCloutList()[0] + hotword.getCurrentHeat();
             updateHotwordClout(hotword.getWord(), newClout);
-            hotword.setCurrentHeat(0); // 重置当前热度
-            mongoTemplate.save(hotword);
         }
     }
 

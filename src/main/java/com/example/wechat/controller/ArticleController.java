@@ -35,6 +35,13 @@ public class ArticleController {
         return Result.okGetStringByData("获取公众号历史推送成功", historyPushes);
     }
 
+    @ApiOperation(value="重置所有文章访问状态", notes = "将所有文章的访问状态设置为未访问")
+    @PostMapping("/resetVisits")
+    public String resetAllArticleVisits() {
+        articleService.resetVisitStatus();
+        return Result.okGetString("所有文章的访问状态已重置为未访问");
+    }
+
 
 
 }

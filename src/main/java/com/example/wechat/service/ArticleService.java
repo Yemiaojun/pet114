@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -16,6 +16,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Service
 public class ArticleService {
@@ -51,16 +54,16 @@ public class ArticleService {
 
     public List<?> searchInfo(String keyword, String type) {
         if ("article".equals(type)) {
-            return mongoTemplate.find(Query.query(Criteria.where("title").regex(keyword)), Article.class);
+            return mongoTemplate.find(query(where("title").regex(keyword)), Article.class);
         } else if ("account".equals(type)) {
-            return mongoTemplate.find(Query.query(Criteria.where("name").regex(keyword)), WechatAccount.class);
+            return mongoTemplate.find(query(where("name").regex(keyword)), WechatAccount.class);
         }
         return null;
     }
 
     public List<HotPushDTO> getHotPushes() {
         Sort sort = Sort.by(Sort.Direction.DESC, "heat");
-        List<Article> articles = mongoTemplate.find(Query.query(new Criteria()).with(sort).limit(15), Article.class);
+        List<Article> articles = mongoTemplate.find(query(new Criteria()).with(sort).limit(15), Article.class);
 
         List<HotPushDTO> hotPushDTOs = new ArrayList<>();
         for (int i = 0; i < articles.size(); i++) {
@@ -81,7 +84,7 @@ public class ArticleService {
 
     public List<HotPushDTO> getHistoryPushList(String accountName) {
         Sort sort = Sort.by(Sort.Direction.DESC, "time");
-        List<Article> articles = mongoTemplate.find(Query.query(Criteria.where("writer").is(accountName)).with(sort), Article.class);
+        List<Article> articles = mongoTemplate.find(query(where("writer").is(accountName)).with(sort), Article.class);
 
         List<HotPushDTO> hotPushDTOs = new ArrayList<>();
         for (int i = 0; i < articles.size(); i++) {
@@ -100,5 +103,10 @@ public class ArticleService {
         return hotPushDTOs;
     }
 
+    public void resetVisitStatus() {
+        Update update = new Update();
+        update.set("visit", false);
+        mongoTemplate.updateMulti(query(where("visit").is(true)), update, Article.class);
+    }
 
 }

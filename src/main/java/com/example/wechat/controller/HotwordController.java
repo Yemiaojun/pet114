@@ -3,7 +3,6 @@ package com.example.wechat.controller;
 import com.example.wechat.model.HotwordDTO;
 import com.example.wechat.service.HotwordService;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,18 +33,6 @@ public class HotwordController {
         return Result.okGetStringByData("获取热度数组成功", Arrays.asList(cloutArray));
     }
 
-    @ApiOperation(value="测试更新热点词的热度", notes = "更新特定热点词的热度，并返回更新后的热度数组")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "word", value = "热点词", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "newClout", value = "新的热度值", required = true, dataType = "int", paramType = "query")
-    })
-    @PutMapping("/testUpdate")
-    public String testUpdateHotword(@RequestParam("word") String word,
-                                    @RequestParam("newClout") int newClout) {
-        hotwordService.updateHotwordClout(word, newClout);
-        double[] updatedCloutArray = hotwordService.getCloutByWord(word);
-        return Result.okGetStringByData("更新热度成功", Arrays.asList(updatedCloutArray));
-    }
 
     @ApiOperation(value="创建或更新热点词", notes = "如果热点词不存在则创建，存在则确认其存在")
     @ApiImplicitParam(name = "word", value = "热点词", required = true, dataType = "String", paramType = "query")
