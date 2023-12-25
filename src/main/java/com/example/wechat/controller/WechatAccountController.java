@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import utils.Result;
 
 import java.util.List;
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/wechatAccount")
 public class WechatAccountController {
