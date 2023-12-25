@@ -1,5 +1,6 @@
 package com.example.wechat.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.bson.types.ObjectId;
 
@@ -16,5 +17,6 @@ public class HotPushDTO {
     private String cover; // 封面 URL
     private String url; // 推送链接
 
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date publicTime; // 发表时间
 }

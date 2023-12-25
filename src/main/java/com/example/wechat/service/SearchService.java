@@ -1,8 +1,9 @@
 package com.example.wechat.service;
 
-import com.example.wechat.model.*;
-import keyword.Keyword;
-import keyword.TFIDFAnalyzer;
+import com.example.wechat.model.Article;
+import com.example.wechat.model.HotPushDTO;
+import com.example.wechat.model.WechatAccount;
+import com.example.wechat.model.WechatAccountDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -10,12 +11,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -45,7 +42,7 @@ public class SearchService {
             dto.setId(article.getId());
             dto.setRank(i + 1);
             dto.setTitle(article.getTitle());
-            dto.setContent(article.getContent().substring(0, Math.min(20, article.getContent().length())));
+            dto.setContent(article.getContent().substring(0, Math.min(60, article.getContent().length())));
             dto.setPublicTime(article.getTime());
             dto.setAccount(article.getWriter());
             dto.setCover(article.getCover());
