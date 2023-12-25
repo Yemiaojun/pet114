@@ -1,10 +1,13 @@
     package com.example.wechat.model;
 
     import lombok.Data;
+    import org.bson.types.ObjectId;
     import org.springframework.data.annotation.Id;
     import org.springframework.data.mongodb.core.mapping.Document;
-    import org.bson.types.ObjectId;
+    import org.springframework.format.annotation.DateTimeFormat;
+
     import java.util.Date;
+
     @Data
     @Document
     public class Article {
@@ -17,10 +20,14 @@
         private int likes; // 点赞数
         private int read; // 阅读量
         private int words; // 文章字数
-        private Date time; // 发布时间
+
+
+
         private String cover;//封面url
-        private boolean visit;//是否已经访问过
+        private Boolean visit;//是否已经访问过
         private int heat;
 
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private Date time; // 发布时间
 
     }

@@ -1,17 +1,17 @@
 package com.example.wechat.controller;
 
 // 导入声明...
+
 import com.example.wechat.model.HotPushDTO;
 import com.example.wechat.service.ArticleService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import utils.Result;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/article")
 public class ArticleController {
