@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -51,6 +52,7 @@ public class HotwordService {
             }
             cloutList[0] = newClout; // 在数组的开头添加最新的热度
             hotword.setCloutList(cloutList);
+            hotword.setCurrentHeat(newClout);
             mongoTemplate.save(hotword);
         }
     }
@@ -149,22 +151,34 @@ public class HotwordService {
     }
 
     public List<HotwordDTO> getTopHotwords() {
-        Sort sort = Sort.by(Sort.Direction.DESC, "cloutList[0]");
-        List<Hotword> hotwords = mongoTemplate.find(Query.query(new Criteria()).with(sort).limit(15), Hotword.class);
+        // 从数据库中获取所有热词，并按照currentHeat字段降序排序
+        Sort sort = Sort.by(Sort.Direction.DESC, "currentHeat");
+        List<Hotword> hotwords = mongoTemplate.find(Query.query(new Criteria()).with(sort), Hotword.class);
 
+        // 过滤掉只包含数字和标点的热词
+        Pattern pattern = Pattern.compile("[^\\d\\p{Punct}]");
+        List<Hotword> filteredHotwords = hotwords.stream()
+                .filter(hotword -> pattern.matcher(hotword.getWord()).find())
+                .limit(15)
+                .collect(Collectors.toList());
+
+        // 转换为DTO
         List<HotwordDTO> hotwordDTOs = new ArrayList<>();
-        for (int i = 0; i < hotwords.size(); i++) {
-            Hotword hotword = hotwords.get(i);
+        for (int i = 0; i < filteredHotwords.size(); i++) {
+            Hotword hotword = filteredHotwords.get(i);
             HotwordDTO dto = new HotwordDTO();
             dto.setId(hotword.getId());
             dto.setRank(i + 1);
             dto.setContent(hotword.getWord());
-            dto.setHeat(hotword.getCloutList()[0]);
-            dto.setTrend(hotword.getCloutList()[0] > hotword.getCloutList()[1] ? "上升" : "下降");
+            dto.setHeat(hotword.getCurrentHeat()); // 使用currentHeat作为热度值
+            dto.setTrend(hotword.getCurrentHeat() > hotword.getCloutList()[1] ? "上升" : "下降"); // 比较趋势
             hotwordDTOs.add(dto);
         }
         return hotwordDTOs;
     }
+
+
+
 
 
 
