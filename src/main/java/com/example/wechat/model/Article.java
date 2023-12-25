@@ -4,7 +4,6 @@
     import org.bson.types.ObjectId;
     import org.springframework.data.annotation.Id;
     import org.springframework.data.mongodb.core.mapping.Document;
-    import org.springframework.format.annotation.DateTimeFormat;
 
     import java.util.Date;
 
@@ -17,17 +16,16 @@
         private String content; // 文章内容
         private String writer; // 文章作者（公众号名称）
         private String link; // 文章链接
-        private int likes; // 点赞数
-        private int read; // 阅读量
-        private int words; // 文章字数
-
-
+        private Integer likes; // 点赞数
+        private Integer read; // 阅读量
+        private Integer words; // 文章字数
 
         private String cover;//封面url
         private Boolean visit;//是否已经访问过
-        private int heat;
+        private Integer heat;
 
-        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date time; // 发布时间
+
+
 
     }
