@@ -8,8 +8,8 @@ public class WechatAccountDTO {
     private ObjectId id;
     private int rank;
     private String name;
-    private int followers;
-    private int totalRead;
+    private Integer followers;
+    private Integer totalRead;
     private String domain;
     private String headpic;
 

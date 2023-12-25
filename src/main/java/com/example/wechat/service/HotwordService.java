@@ -156,7 +156,7 @@ public class HotwordService {
         List<Hotword> hotwords = mongoTemplate.find(Query.query(new Criteria()).with(sort), Hotword.class);
 
         // 过滤掉只包含数字和标点的热词
-        Pattern pattern = Pattern.compile("[^\\d\\p{Punct}！ ） ]");
+        Pattern pattern = Pattern.compile("[^\\d\\p{Punct}，。！ ） ]");
         List<Hotword> filteredHotwords = hotwords.stream()
                 .filter(hotword -> pattern.matcher(hotword.getWord()).find())
                 .limit(15)

@@ -4,10 +4,7 @@ import com.example.wechat.model.WechatAccount;
 import com.example.wechat.service.WechatAccountService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import utils.Result;
 
 import java.util.List;
@@ -25,4 +22,12 @@ public class WechatAccountController {
         List<WechatAccount> hotAccounts = wechatAccountService.getHotAccounts();
         return Result.okGetStringByData("获取热门公众号成功", hotAccounts);
     }
+
+
+    @PostMapping("/updateAccountHeat")
+    public String updateAccountHeat() {
+       wechatAccountService.updateAccountHeat();
+        return Result.okGetString("获取热门公众号成功");
+    }
+
 }
