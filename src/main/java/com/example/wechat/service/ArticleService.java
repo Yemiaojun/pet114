@@ -72,7 +72,7 @@ public class ArticleService {
             dto.setId(article.getId());
             dto.setRank(i + 1);
             dto.setTitle(article.getTitle());
-            dto.setContent(article.getContent().substring(0, Math.min(60, article.getContent().length())));
+            dto.setContent(article.getContent().substring(0, Math.min(200, article.getContent().length())));
             dto.setPublicTime(article.getTime());
             dto.setAccount(article.getWriter());
             dto.setCover(article.getCover());
@@ -93,7 +93,7 @@ public class ArticleService {
             dto.setId(article.getId());
             dto.setRank(i + 1);
             dto.setTitle(article.getTitle());
-            dto.setContent(article.getContent().substring(0, Math.min(60, article.getContent().length())));
+            dto.setContent(article.getContent().substring(0, Math.min(200, article.getContent().length())));
             dto.setPublicTime(article.getTime());
             dto.setAccount(article.getWriter());
             dto.setCover(article.getCover());
