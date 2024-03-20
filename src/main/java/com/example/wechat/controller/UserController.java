@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import utils.Result;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.example.wechat.model.User;
@@ -53,9 +54,11 @@ public class UserController {
             @ApiImplicitParam(name = "password", value = "密码", required = true, dataType = "String", paramType = "query")
     })
     @PostMapping("/login")
-    public ResponseEntity<String> tryLogin(@RequestParam("username") String username,
-                                           @RequestParam("password") String password,
+    public ResponseEntity<String> tryLogin(@RequestBody Map<String, String> credentials,
                                            HttpSession session) {
+
+        String username = credentials.get("username");
+        String password = credentials.get("password");
         Optional<User> userOptional = userService.tryLogin(username, password);
         if (userOptional.isPresent()) {
             // 登录成功，将用户ID和权限等级保存到会话中
