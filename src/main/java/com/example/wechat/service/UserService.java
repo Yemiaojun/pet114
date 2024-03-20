@@ -1,5 +1,6 @@
 package com.example.wechat.service;
 
+import com.example.wechat.exception.DefaultException;
 import com.example.wechat.model.User;
 import com.example.wechat.repository.UserRepository;
 import org.bson.types.ObjectId;
@@ -17,12 +18,18 @@ public class UserService {
 
     public Optional<User> addUser(User user) {
         // 检查是否已经存在相同用户名的用户
+        if (user.getUsername().length() < 2) {
+            throw new DefaultException("用户名过短，至少需要两个字符");
+        }
+
+        if (user.getPassword().length() < 3) {
+            throw new DefaultException("密码过短，至少需要3位");
+        }
+
         Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
         if (existingUser.isPresent()) {
-            // 用户名已存在，返回空Optional作为错误指示
-            return Optional.empty();
+            throw new DefaultException("用户名已存在");
         }
-        // 用户名不存在，添加新用户
         User savedUser = userRepository.save(user);
         return Optional.of(savedUser);
     }
