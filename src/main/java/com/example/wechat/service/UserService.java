@@ -15,8 +15,16 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User addUser(User user) {
-        return userRepository.save(user);
+    public Optional<User> addUser(User user) {
+        // 检查是否已经存在相同用户名的用户
+        Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
+            // 用户名已存在，返回空Optional作为错误指示
+            return Optional.empty();
+        }
+        // 用户名不存在，添加新用户
+        User savedUser = userRepository.save(user);
+        return Optional.of(savedUser);
     }
 
     public User setAuth(ObjectId id, String auth) {

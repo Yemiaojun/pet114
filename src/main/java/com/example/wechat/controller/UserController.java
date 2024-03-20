@@ -25,7 +25,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @ApiOperation(value="添加用户", notes = "添加新的用户记录")
+    @ApiOperation(value="添加用户", notes = "添加新的用户记录（Body)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
             @ApiImplicitParam(name = "password", value = "用户密码", required = true, dataType = "String"),
@@ -36,9 +36,14 @@ public class UserController {
             @ApiImplicitParam(name = "securityQuestionAnswer", value = "安全问题答案", required = false, dataType = "String")
     })
     @PostMapping("/addUser")
-    public String addUser(@RequestBody User user) {
-        User savedUser = userService.addUser(user);
-        return Result.okGetStringByData("用户添加成功", savedUser);
+    public ResponseEntity<String> addUser(@RequestBody User user) {
+        Optional<User> savedUser = userService.addUser(user);
+        if (!savedUser.isPresent()) {
+            // 用户名已存在的情况
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户名已存在"));
+        }
+        // 用户添加成功
+        return ResponseEntity.ok(Result.okGetStringByData("用户添加成功", savedUser.get()));
     }
 
 
