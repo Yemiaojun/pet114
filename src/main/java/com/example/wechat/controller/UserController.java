@@ -93,4 +93,14 @@ public class UserController {
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或会话已过期"));
         }
     }
+
+    @ApiOperation(value = "用户登出", notes = "用户登出接口，结束用户会话")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        // 结束会话
+        session.invalidate();
+
+        // 返回登出成功的消息
+        return ResponseEntity.ok(Result.okGetString("登出成功"));
+    }
 }
