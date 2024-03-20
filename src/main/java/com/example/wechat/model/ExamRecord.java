@@ -3,6 +3,7 @@ package com.example.wechat.model;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -10,8 +11,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ExamRecord {
     @Id
     private ObjectId id;
-    private ObjectId examId;
-    private ObjectId userId;
+    @DBRef
+    private Exam exam;
+    @DBRef
+    private User user;
     private String status;
     private Integer score;
 }

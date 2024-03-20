@@ -3,6 +3,7 @@ package com.example.wechat.model;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
@@ -11,10 +12,13 @@ import java.util.Date;
 public class QuestionRecord {
     @Id
     private ObjectId id;
-    private ObjectId questionId;
+    @DBRef
+    private Question question;
     private String choice;
-    private Boolean trueChoice; // Changed 'true' to 'trueChoice' as 'true' is a reserved keyword
-    private ObjectId userId;
-    private ObjectId examId;
+    private Boolean trueChoice;
+    @DBRef
+    private User user;
+    @DBRef
+    private Exam exam;
     private Date time;
 }
