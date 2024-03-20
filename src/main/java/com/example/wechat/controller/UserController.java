@@ -53,15 +53,21 @@ public class UserController {
                                            HttpSession session) {
         Optional<User> userOptional = userService.tryLogin(username, password);
         if (userOptional.isPresent()) {
-            // 登录成功，将用户ID保存到会话中
+            // 登录成功，将用户ID和权限等级保存到会话中
             User user = userOptional.get();
             session.setAttribute("userId", user.getId().toString());
+            session.setAttribute("auth", user.getAuth()); // 存储权限等级到会话中
+
+            // 为了安全起见，返回的用户信息不应包含敏感信息如密码
+            user.setPassword(null);
+
             return ResponseEntity.ok(Result.okGetStringByData("登录成功", user));
         } else {
             // 登录失败
             return ResponseEntity.badRequest().body(Result.errorGetString("用户名或密码错误"));
         }
     }
+
 
 
     @ApiOperation(value = "获取当前用户信息", notes = "返回当前会话中的用户信息")
