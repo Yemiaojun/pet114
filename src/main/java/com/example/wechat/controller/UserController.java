@@ -3,6 +3,7 @@ package com.example.wechat.controller;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.*;
 import utils.Result;
@@ -27,26 +28,15 @@ public class UserController {
     private UserService userService;
 
     @ApiOperation(value="添加用户", notes = "添加新的用户记录（Body)")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "password", value = "用户密码", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "auth", value = "用户权限", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "avatarUrl", value = "用户头像URL", required = false, dataType = "String"),
-            @ApiImplicitParam(name = "email", value = "用户邮箱", required = false, dataType = "String"),
-            @ApiImplicitParam(name = "securityQuestion", value = "安全问题", required = false, dataType = "String"),
-            @ApiImplicitParam(name = "securityQuestionAnswer", value = "安全问题答案", required = false, dataType = "String")
-    })
     @PostMapping("/addUser")
-    public ResponseEntity<String> addUser(@RequestBody User user) {
+    public ResponseEntity<String> addUser(@ApiParam(value = "用户信息", required = true) @RequestBody User user) {
         Optional<User> savedUser = userService.addUser(user);
         if (!savedUser.isPresent()) {
-            // 用户名已存在的情况
             return ResponseEntity.badRequest().body(Result.errorGetString("用户名已存在"));
         }
-        // 用户添加成功
-        return ResponseEntity.ok(Result.okGetStringByData("用户添加成功", savedUser.get()));
+        user.setPassword(null); // 为了安全，不返回密码信息
+        return ResponseEntity.ok(Result.okGetStringByData("用户添加成功", user));
     }
-
 
     @ApiOperation(value = "用户登录", notes = "用户登录接口")
     @ApiImplicitParams({
@@ -64,7 +54,7 @@ public class UserController {
             // 登录成功，将用户ID和权限等级保存到会话中
             User user = userOptional.get();
             session.setAttribute("userId", user.getId().toString());
-            session.setAttribute("auth", user.getAuth()); // 存储权限等级到会话中
+            session.setAttribute("authLevel", user.getAuth()); // 存储权限等级到会话中
 
             // 为了安全起见，返回的用户信息不应包含敏感信息如密码
             user.setPassword(null);
