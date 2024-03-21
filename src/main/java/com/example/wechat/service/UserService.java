@@ -125,6 +125,21 @@ public class UserService {
         return false;
     }
 
+    public boolean updateAuth(ObjectId userId, String auth) {
+        if (!"1".equals(auth) && !"2".equals(auth)) {
+            throw new DefaultException("无效的权限等级");
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setAuth(auth); // 更新权限
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
 
 
 }

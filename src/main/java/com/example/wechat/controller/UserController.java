@@ -246,4 +246,31 @@ public class UserController {
         }
     }
 
+    @ApiOperation(value = "更新用户权限", notes = "根据用户ID更新用户权限，需要管理员权限")
+    @PostMapping("/updateAuth")
+    public ResponseEntity<String> updateAuth(
+            @ApiParam(value = "用户ID", required = true) @RequestParam("id") String userIdStr,
+            @ApiParam(value = "新权限等级（1为普通用户，2为管理员）", required = true, example = "1") @RequestParam("auth") String auth,
+            HttpSession session) {
+        // 检查用户权限
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备管理员权限"));
+        }
+
+        try {
+            ObjectId userId = new ObjectId(userIdStr);
+            boolean updateSuccess = userService.updateAuth(userId, auth);
+
+            if (updateSuccess) {
+                return ResponseEntity.ok(Result.okGetString("权限更新成功"));
+            } else {
+                return ResponseEntity.badRequest().body(Result.errorGetString("用户ID错误或不存在"));
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户ID格式不正确"));
+        }
+    }
+
 }
