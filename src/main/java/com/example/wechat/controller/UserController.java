@@ -121,4 +121,129 @@ public class UserController {
 
         return ResponseEntity.ok(Result.okGetStringByData("获取用户信息成功", users));
     }
+
+    @ApiOperation(value = "获取所有用户", notes = "返回所有用户列表，需要管理员权限")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取所有用户信息成功"),
+            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+    })
+    @GetMapping("/findAllUsers")
+    public ResponseEntity<String> findAllUsers(HttpSession session) {
+        // 检查用户权限
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+        }
+
+        List<User> users = userService.findAllUsers();
+        return ResponseEntity.ok(Result.okGetStringByData("获取所有用户信息成功", users));
+    }
+
+    @ApiOperation(value = "修改密码", notes = "用户已登陆时，提供当前用户名，密码和新密码来修改密码(body)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "currentPassword", value = "密码", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "newPassword", value = "新密码", required = true, dataType = "String", paramType = "query")
+    })
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(
+            @RequestBody Map<String, String> payload,
+            HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
+        if (userIdStr == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        }
+
+        // 从请求体中获取username、currentPassword和newPassword
+        String username = payload.get("username");
+        String currentPassword = payload.get("currentPassword");
+        String newPassword = payload.get("newPassword");
+
+        // 确认会话中的用户ID与提供的用户名匹配，然后尝试修改密码
+        Optional<User> userOptional = userService.findUserById(new ObjectId(userIdStr));
+        if (userOptional.isPresent() && userOptional.get().getUsername().equals(username) &&
+                userService.updatePassword(username, currentPassword, newPassword)) {
+            return ResponseEntity.ok(Result.okGetString("密码修改成功"));
+        } else {
+            return ResponseEntity.badRequest().body(Result.errorGetString("密码修改失败，提供的用户名或密码错误"));
+        }
+    }
+
+    @ApiOperation(value = "获取密保问题", notes = "根据用户名返回这个用户的密保问题")
+    @GetMapping("/getSecurityQuestion")
+    public ResponseEntity<String> getSecurityQuestion(@RequestParam String username) {
+        String securityQuestion = userService.getSecurityQuestionByUsername(username);
+        if (securityQuestion != null) {
+            return ResponseEntity.ok(Result.okGetStringByData("密保问题获取成功", securityQuestion));
+        } else {
+            return ResponseEntity.badRequest().body(Result.errorGetString("找不到对应的用户或用户未设置密保问题"));
+        }
+    }
+
+    @ApiOperation(value = "根据密保问题答案重置密码", notes = "用户提供用户名、密保答案和新密码来重置密码。请求体应包含username, securityAnswer, newPassword字段。")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "securityAnswer", value = "密码", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "newPassword", value = "新密码", required = true, dataType = "String", paramType = "query")
+    })
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> body, HttpSession session) {
+        String username = body.get("username");
+        String securityAnswer = body.get("securityAnswer");
+        String newPassword = body.get("newPassword");
+
+        if(username == null || securityAnswer == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("请求参数不完整"));
+        }
+
+        boolean updateSuccess = userService.updatePasswordIfSecurityAnswerMatches(username, securityAnswer, newPassword);
+
+        if (updateSuccess) {
+            return ResponseEntity.ok(Result.okGetString("密码重置成功"));
+        } else {
+            return ResponseEntity.badRequest().body(Result.errorGetString("密保问题答案错误或用户不存在"));
+        }
+    }
+
+    @ApiOperation(value = "根据用户ID修改密码", notes = "管理员根据用户的ID修改密码，需要管理员权限(body)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "newPassword", value = "新密码", required = true, dataType = "String", paramType = "query")
+    })
+    @PostMapping("/changePasswordById")
+    public ResponseEntity<String> changePasswordById(
+            @RequestBody Map<String, String> body,
+            HttpSession session) {
+        // 检查用户权限
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备管理员权限"));
+        }
+
+        // 从请求体中提取userId和newPassword
+        String userId = body.get("userId");
+        String newPassword = body.get("newPassword");
+
+        // 检查参数完整性
+        if (userId == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("请求参数不完整"));
+        }
+
+        // 尝试将字符串ID转换为ObjectId，以便与数据库操作兼容
+        try {
+            ObjectId objectId = new ObjectId(userId);
+            boolean updateSuccess = userService.updatePasswordById(objectId, newPassword);
+
+            if (updateSuccess) {
+                return ResponseEntity.ok(Result.okGetString("密码修改成功"));
+            } else {
+                return ResponseEntity.badRequest().body(Result.errorGetString("用户ID错误或不存在"));
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户ID格式不正确"));
+        }
+    }
+
 }

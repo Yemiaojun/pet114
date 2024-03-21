@@ -5,6 +5,7 @@ import com.example.wechat.model.User;
 import com.example.wechat.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +16,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Optional<User> addUser(User user) {
-        // 检查是否已经存在相同用户名的用户
         if (user.getUsername().length() < 2) {
             throw new DefaultException("用户名过短，至少需要两个字符");
         }
@@ -30,9 +31,11 @@ public class UserService {
         if (existingUser.isPresent()) {
             throw new DefaultException("用户名已存在");
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // 加密密码
         User savedUser = userRepository.save(user);
         return Optional.of(savedUser);
     }
+
 
     public User setAuth(ObjectId id, String auth) {
         Optional<User> userOptional = userRepository.findById(id);
@@ -44,15 +47,6 @@ public class UserService {
         return null;
     }
 
-    public User changePasswordById(ObjectId id, String newPassword) {
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setPassword(newPassword);
-            return userRepository.save(user);
-        }
-        return null;
-    }
 
     public User changeNameById(ObjectId id, String newName) {
         Optional<User> userOptional = userRepository.findById(id);
@@ -65,8 +59,13 @@ public class UserService {
     }
 
     public Optional<User> tryLogin(String username, String password) {
-        return userRepository.findByUsernameAndPassword(username, password);
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent() && passwordEncoder.matches(password, userOptional.get().getPassword())) {
+            return userOptional;
+        }
+        return Optional.empty();
     }
+
 
     public Optional<User> findUserById(ObjectId id) {
         return userRepository.findById(id);
@@ -78,22 +77,54 @@ public class UserService {
         return userRepository.findByUsernameLike(regex);
     }
 
-    public User changeAvatar(ObjectId id, String newAvatarUrl) {
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setAvatarUrl(newAvatarUrl);
-            return userRepository.save(user);
-        }
-        return null;
-    }
-
-    public String checkAuth(ObjectId id) {
-        Optional<User> userOptional = userRepository.findById(id);
-        return userOptional.map(User::getAuth).orElse(null);
-    }
-
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
+
+    public boolean updatePassword(String username, String currentPassword, String newPassword) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (passwordEncoder.matches(currentPassword, user.getPassword())) { // 验证密码
+                user.setPassword(passwordEncoder.encode(newPassword)); // 加密新密码
+                userRepository.save(user);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public String getSecurityQuestionByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        return userOptional.map(User::getSecurityQuestion).orElse(null);
+    }
+
+    public boolean updatePasswordIfSecurityAnswerMatches(String username, String securityAnswer, String newPassword) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            // 这里简化了安全问题答案的比较逻辑，实际应用中可能需要更复杂的安全考虑
+            if (user.getSecurityQuestionAnswer().equals(securityAnswer)) {
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean updatePasswordById(ObjectId userId, String newPassword) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user); // 更新用户信息
+            return true;
+        }
+        return false;
+    }
+
+
+
 }
