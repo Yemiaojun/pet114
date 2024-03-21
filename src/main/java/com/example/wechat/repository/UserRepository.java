@@ -17,6 +17,6 @@ public interface UserRepository extends MongoRepository<User, ObjectId> {
     // 为新的服务方法添加定义
     // 注意：对于修改操作，通常在Service层实现，因为直接的修改操作并不是Repository层的职责
 
-    @Query("{'username': {$regex: ?0, $optisons: 'i'}}")
+    @Query("{'username': {$regex: ?0, $options: 'i'}}")
     List<User> findByUsernameLike(String regex);
 }
