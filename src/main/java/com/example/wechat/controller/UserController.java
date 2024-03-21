@@ -1,9 +1,6 @@
 package com.example.wechat.controller;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.*;
 import utils.Result;
@@ -102,5 +99,26 @@ public class UserController {
 
         // 返回登出成功的消息
         return ResponseEntity.ok(Result.okGetString("登出成功"));
+    }
+
+    @ApiOperation(value = "根据用户名模糊查找用户", notes = "返回符合条件的用户列表，需要管理员权限")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取用户信息成功"),
+            @ApiResponse(code = 400, message = "用户未登录或不具备更新权限")
+    })
+    @GetMapping("/searchByUsername")
+    public ResponseEntity<String> findUsersByUsername(
+            @ApiParam(value = "用户名", required = true, example = "john") @RequestParam String username,
+            HttpSession session) {
+        // 检查用户权限
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查找权限"));
+        }
+
+        List<User> users = userService.findUsersByUsernameLike(username);
+
+        return ResponseEntity.ok(Result.okGetStringByData("获取用户信息成功", users));
     }
 }

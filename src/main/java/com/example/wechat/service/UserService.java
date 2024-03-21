@@ -72,6 +72,12 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public List<User> findUsersByUsernameLike(String username) {
+        // 构建一个正则表达式，进行不区分大小写的模糊匹配
+        String regex = ".*" + username + ".*";
+        return userRepository.findByUsernameLike(regex);
+    }
+
     public User changeAvatar(ObjectId id, String newAvatarUrl) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
