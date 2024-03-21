@@ -6,6 +6,7 @@ import com.example.wechat.repository.DiseaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import org.bson.types.ObjectId;
 @Service
@@ -57,6 +58,10 @@ public class DiseaseService {
             return Optional.of(diseaseRepository.save(dese));
         }
         throw new DefaultException("id不存在");
+    }
+
+    public List<Disease> getDiseasesByCategoryId(ObjectId categoryId) {
+        return diseaseRepository.findByCategoryId(categoryId);
     }
 
 
