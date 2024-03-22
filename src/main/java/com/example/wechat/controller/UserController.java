@@ -108,7 +108,7 @@ public class UserController {
     })
     @GetMapping("/searchByUsername")
     public ResponseEntity<String> findUsersByUsername(
-            @ApiParam(name = "type", value = "用户名", required = true, example = "john") @RequestParam("username") String username,
+            @ApiParam(name = "username", value = "用户名", required = true, example = "john") @RequestParam("username") String username,
             HttpSession session) {
         // 检查用户权限
         String userAuth = (String) session.getAttribute("authLevel");
