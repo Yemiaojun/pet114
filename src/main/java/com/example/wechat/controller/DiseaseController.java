@@ -70,7 +70,7 @@ public class DiseaseController {
         if (userIdStr != null && "2".equals(userAuth)) {
             try{
             Optional<Disease> dd = diseaseService.deleteDiseaseByName(name);
-            return ResponseEntity.ok(Result.okGetStringByData("药品删除成功",dd));
+            return ResponseEntity.ok(Result.okGetStringByData("疾病删除成功",dd));
             }catch (DefaultException de){
                 return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));
             }
@@ -97,7 +97,7 @@ public class DiseaseController {
             if (updatedDisease.isPresent()) {
                 return ResponseEntity.ok(Result.okGetStringByData("疾病更新成功", updatedDisease.get()));
             } else {
-                return ResponseEntity.badRequest().body(Result.errorGetString("药品更新失败，药品可能不存在"));
+                return ResponseEntity.badRequest().body(Result.errorGetString("疾病更新失败，药品可能不存在"));
             }}catch (DefaultException de){
                 return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));
             }

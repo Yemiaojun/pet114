@@ -5,13 +5,11 @@ import com.example.wechat.model.Category;
 import com.example.wechat.service.CategoryService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import utils.Result;
 
 import javax.servlet.http.HttpSession;
@@ -50,31 +48,24 @@ public class CategoryController {
 
     }
 
-    @ApiOperation(value = "删除病类", notes = "删除病类，需要管理员权限")
-    @PostMapping("/deleteCategory")
-    public ResponseEntity<String> deleteCategory(
-            @ApiParam(value = "病类信息", required = true) @RequestBody Category category,
+    @ApiOperation(value = "删除病类", notes = "删除指定的病类，需要管理员权限。如果病类被引用，则更新引用为'待定'。")
+    @DeleteMapping("/deleteCategoryById")
+    public ResponseEntity<String> deleteCategoryById(
+            @ApiParam(value = "病类ID", required = true) @RequestParam String categoryId,
             HttpSession session) {
-
-        // 检查会话中是否有用户ID和auth信息
-        String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
 
-        // 确认用户已登录且具有管理员权限
-        if (userIdStr != null && "2".equals(userAuth)) {
-            try {
-                Optional<Category> deletedCategory = categoryService.deleteCategory(category);
-                return ResponseEntity.ok(Result.okGetStringByData("病类删除成功", deletedCategory));
-            } catch (DefaultException de) {
-
-                return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));
-
-            }
-        } else {
-            // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备删除权限"));
+        if (userAuth == null || !"2".equals(userAuth)) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备管理员权限"));
         }
 
+        try {
+            ObjectId id = new ObjectId(categoryId);
+            categoryService.deleteCategory(id);
+            return ResponseEntity.ok(Result.okGetString("病类删除成功，相关引用已更新为'待定'"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("删除病类失败: " + e.getMessage()));
+        }
     }
 
 
