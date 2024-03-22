@@ -29,6 +29,19 @@ public class CategoryService {
     }
 
 
+    public Optional<Category> deleteCategory(Category category) {
+        // 删除类别的业务逻辑
+        // 检查类别是否存在
+        Optional<Category> existingCategory = categoryRepository.findById(category.getId());
+        if (!existingCategory.isPresent()) {
+            // 类别不存在，返回空Optional作为错误指示
+            throw new DefaultException("类别不存在");
+        }
+
+        // 类别存在，执行删除操作
+        categoryRepository.delete(category);
 
 
+        return existingCategory;
+    }
 }

@@ -50,6 +50,34 @@ public class CategoryController {
 
     }
 
+    @ApiOperation(value = "删除病类", notes = "删除病类，需要管理员权限")
+    @PostMapping("/deleteCategory")
+    public ResponseEntity<String> deleteCategory(
+            @ApiParam(value = "病类信息", required = true) @RequestBody Category category,
+            HttpSession session) {
+
+        // 检查会话中是否有用户ID和auth信息
+        String userIdStr = (String) session.getAttribute("userId");
+        String userAuth = (String) session.getAttribute("authLevel");
+
+        // 确认用户已登录且具有管理员权限
+        if (userIdStr != null && "2".equals(userAuth)) {
+            try {
+                Optional<Category> deletedCategory = categoryService.deleteCategory(category);
+                return ResponseEntity.ok(Result.okGetStringByData("病类删除成功", deletedCategory));
+            } catch (DefaultException de) {
+
+                return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));
+
+            }
+        } else {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备删除权限"));
+        }
+
+    }
+
+
 
 
 }
