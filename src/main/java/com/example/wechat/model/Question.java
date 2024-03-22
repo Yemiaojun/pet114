@@ -31,4 +31,9 @@ public class Question {
 
     @ApiModelProperty(value = "分值", example = "5")
     private Integer score;
+
+    @ApiModelProperty(value="可见",example = "true")
+    private boolean visible;
+
+
 }
