@@ -1,8 +1,10 @@
 package com.example.wechat.controller;
 
+import com.example.wechat.service.FileStorageService;
 import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import utils.Result;
 
 import java.util.List;
@@ -23,6 +25,9 @@ import javax.servlet.http.HttpSession;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @ApiOperation(value="添加用户", notes = "添加新的用户记录（Body)")
     @PostMapping("/addUser")
@@ -272,5 +277,29 @@ public class UserController {
             return ResponseEntity.badRequest().body(Result.errorGetString("用户ID格式不正确"));
         }
     }
+
+    @ApiOperation(value = "上传头像", notes = "用户可以上传一张图片来修改自己的头像，需要用户登录")
+    @PostMapping("/uploadAvatar")
+    public ResponseEntity<String> uploadAvatar(
+            @ApiParam(value = "头像文件", required = true) @RequestParam("file") MultipartFile file,
+            HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
+        if (userIdStr == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        }
+
+        try {
+            ObjectId userId = new ObjectId(userIdStr);
+            User user = userService.findUserById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+            String filePath = fileStorageService.storeAvatar(file, user.getUsername());
+            // 假设saveAvatarUrl方法是用来更新用户头像URL的
+            userService.saveAvatarUrl(userId, filePath);
+            return ResponseEntity.ok(Result.okGetStringByData("头像更新成功", filePath));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("头像更新失败: " + e.getMessage()));
+        }
+    }
+
+
 
 }

@@ -140,6 +140,17 @@ public class UserService {
         return false;
     }
 
+    public void saveAvatarUrl(ObjectId userId, String avatarUrl) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setAvatarUrl(avatarUrl); // 更新用户的头像URL
+            userRepository.save(user); // 保存更改
+        }
+        else throw new DefaultException("错误的userID");
+
+    }
+
 
 
 }
