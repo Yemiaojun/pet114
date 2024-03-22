@@ -1,12 +1,16 @@
 package com.example.wechat.service;
 
+import com.example.wechat.exception.DefaultException;
 import com.example.wechat.model.Category;
 import com.example.wechat.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class CategoryService {
+
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -16,7 +20,7 @@ public class CategoryService {
          Optional<Category> existingCategory = categoryRepository.findByName(category.getName());
             if (existingCategory.isPresent()) {
                 // 类别名称已存在，返回空Optional作为错误指示
-                return Optional.empty();
+                throw new DefaultException("本类名已存在");
             }
 
             // 类别名称不存在，添加新类别
