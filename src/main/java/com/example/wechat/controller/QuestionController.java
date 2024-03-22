@@ -36,4 +36,6 @@ public class QuestionController {
             return ResponseEntity.badRequest().body(Result.errorGetString("问题添加异常: " + e.getMessage()));
         }
     }
+
+
 }

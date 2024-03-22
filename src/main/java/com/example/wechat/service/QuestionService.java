@@ -13,6 +13,7 @@ public class QuestionService {
     private QuestionRepository questionRepository;
 
     public Question addQuestion(Question question) {
+        question.setVisible(true);
         return questionRepository.save(question);
     }
 }
