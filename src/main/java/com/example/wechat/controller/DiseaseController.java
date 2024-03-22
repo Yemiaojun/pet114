@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
+/**
+ * DiseaseController 提供了与疾病相关的操作的控制器。
+ */
 @RestController
 @RequestMapping("/disease")
 public class DiseaseController {
@@ -29,6 +32,14 @@ public class DiseaseController {
     @Autowired
     private DiseaseService diseaseService;
 
+
+    /**
+     * 添加新的疾病信息。
+     *
+     * @param disease 疾病信息
+     * @param session HTTP 会话
+     * @return 添加成功后的疾病信息
+     */
     @ApiOperation(value="添加疾病", notes = "添加新的疾病，需要管理员权限")
     @PostMapping("/addDisease")
     public ResponseEntity<String> addDisease(
@@ -56,6 +67,14 @@ public class DiseaseController {
 
     }
 
+
+    /**
+     * 删除疾病信息。
+     *
+     * @param name    要删除的疾病名称
+     * @param session HTTP 会话
+     * @return 删除成功后的疾病信息
+     */
     @ApiOperation(value="删除疾病", notes = "删除疾病，需要管理员权限")
     @PostMapping("/deleteDisease")
     public ResponseEntity<String> deleteDisease(
@@ -81,6 +100,14 @@ public class DiseaseController {
         }
     }
 
+
+    /**
+     * 更新疾病信息。
+     *
+     * @param disease 要更新的疾病信息
+     * @param session HTTP 会话
+     * @return 更新后的疾病信息
+     */
     @ApiOperation(value = "更新疾病信息", notes = "根据提供的疾病信息更新疾病，需要管理员权限")
     @ApiResponses({
             @ApiResponse(code = 200, message = "疾病更新成功"),
