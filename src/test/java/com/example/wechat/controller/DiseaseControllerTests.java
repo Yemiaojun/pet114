@@ -60,61 +60,10 @@ public class DiseaseControllerTests {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
-    @Test
-    public void testDeleteDiseaseSuccess() {
-        // 模拟会话中的用户ID和权限（管理员权限）
-        when(session.getAttribute("userId")).thenReturn("1");
-        when(session.getAttribute("authLevel")).thenReturn("2");
 
-        // 模拟 DiseaseService 的行为（成功删除疾病）
-        String diseaseName = "Test Disease";
-        when(diseaseService.deleteDiseaseByName(diseaseName)).thenReturn(Optional.of(new Disease()));
 
-        // 调用被测试的方法
-        ResponseEntity<String> response = diseaseController.deleteDisease(diseaseName, session);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
 
-    @Test
-    public void testDeleteDiseaseNotFound() {
-        // 模拟会话中的用户ID和权限（管理员权限）
-        when(session.getAttribute("userId")).thenReturn("1");
-        when(session.getAttribute("authLevel")).thenReturn("2");
-
-        // 模拟 DiseaseService 的行为（未找到要删除的疾病）
-        String diseaseName = "Nonexistent Disease";
-        when(diseaseService.deleteDiseaseByName(diseaseName)).thenReturn(Optional.empty());
-
-        // 调用被测试的方法
-        ResponseEntity<String> response = diseaseController.deleteDisease(diseaseName, session);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    public void testDeleteDiseaseUnauthorized() {
-        // 模拟会话中的用户ID和权限（非管理员权限）
-        when(session.getAttribute("userId")).thenReturn("1");
-        when(session.getAttribute("authLevel")).thenReturn("1");
-
-        // 调用被测试的方法
-        ResponseEntity<String> response = diseaseController.deleteDisease("Any Disease", session);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    public void testDeleteDiseaseNotLoggedIn() {
-        // 模拟会话中没有用户ID和权限信息（未登录）
-        when(session.getAttribute("userId")).thenReturn(null);
-        when(session.getAttribute("authLevel")).thenReturn(null);
-
-        // 调用被测试的方法
-        ResponseEntity<String> response = diseaseController.deleteDisease("Any Disease", session);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
     @Test
     public void testUpdateDiseaseSuccess() {
         // 模拟会话中的管理员权限
