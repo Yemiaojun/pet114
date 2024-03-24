@@ -44,17 +44,17 @@ public class FacilityService {
     /**
      * 根据科室名称删除设备信息。
      *
-     * @param name 要删除的设备名称
+     * @param id 要删除的设备id
      * @return 删除成功后返回被删除的设备对象的 Optional，如果找不到对应名称的设备则返回空 Optional
-     * @throws NameNotFoundException 如果找不到对应名称的设备，则抛出 NameNotFoundException 异常
+     * @throws IdNotFoundException 如果找不到对应名称的设备，则抛出 IdNotFoundException 异常
      */
-    public Optional<Facility> deleteFacilityByName(String name) throws NameNotFoundException {
-        Optional<Facility> existedFacility = facilityRepository.findFacilityByName(name);
+    public Optional<Facility> deleteFacilityById(ObjectId id) throws IdNotFoundException {
+        Optional<Facility> existedFacility = facilityRepository.findById(id);
 
         //对应名字的facility不存在则报错
         if(!existedFacility.isPresent()){
             // id不存在，返回空Optional作为错误指示
-            throw new NameNotFoundException("名字不存在");
+            throw new IdNotFoundException("对应设备不存在");
         }
         facilityRepository.delete(existedFacility.get());
         return existedFacility;

@@ -72,24 +72,28 @@ public class DiseaseController {
     /**
      * 删除疾病信息。
      *
-     * @param name    要删除的疾病名称
+     * @param payload    请求体信息，包含部门id
      * @param session HTTP 会话
      * @return 删除成功后的疾病信息
      */
     @ApiOperation(value="删除疾病", notes = "删除疾病，需要管理员权限")
+    @ApiImplicitParam(name = "id", value = "部门", required = true, dataType = "String", paramType = "query")
     @PostMapping("/deleteDisease")
     public ResponseEntity<String> deleteDisease(
-            @ApiParam(value = "疾病名字", required = true) @RequestBody String name,
+            @RequestBody Map<String, String> payload,
             HttpSession session) {
 
         // 检查会话中是否有用户ID和auth信息
         String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
 
+        // 从请求体中获取疾病id
+        String id = payload.get("id");
+
         // 确认用户已登录且具有管理员权限
         if (userIdStr != null && "2".equals(userAuth)) {
             try{
-            Optional<Disease> dd = diseaseService.deleteDiseaseByName(name);
+            Optional<Disease> dd = diseaseService.deleteDiseaseById(new ObjectId(id));
             return ResponseEntity.ok(Result.okGetStringByData("疾病删除成功",dd));
             }catch (DefaultException de){
                 return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));

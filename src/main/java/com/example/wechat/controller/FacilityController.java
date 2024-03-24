@@ -16,6 +16,7 @@ import utils.Result;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -66,24 +67,28 @@ public class FacilityController {
     /**
      * 删除设备信息。
      *
-     * @param name    要删除的设备名称
+     * @param payload    请求体，其中包含设备id
      * @param session HTTP 会话
      * @return 删除成功后的设备信息
      */
     @ApiOperation(value="删除设备", notes = "删除设备，需要管理员权限")
+    @ApiImplicitParam(name = "id", value = "部门", required = true, dataType = "String", paramType = "query")
     @DeleteMapping("/deleteFacility")
     public ResponseEntity<String> facilityDepartment(
-            @ApiParam(value = "设备名字", required = true) @RequestBody String name,
+            @RequestBody Map<String, String> payload,
             HttpSession session) {
 
         // 检查会话中是否有用户ID和auth信息
         String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
 
+        // 从请求体中获取部门id
+        String id = payload.get("id");
+
         // 确认用户已登录且具有管理员权限
         if (userIdStr != null && "2".equals(userAuth)) {
             try{
-                Optional<Facility> optionalFacility = facilityService.deleteFacilityByName(name);
+                Optional<Facility> optionalFacility = facilityService.deleteFacilityById(new ObjectId(id));
                 return ResponseEntity.ok(Result.okGetStringByData("科室删除成功",optionalFacility));
             }catch (Exception e){
                 return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));

@@ -64,17 +64,17 @@ public class DepartmentService {
     /**
      * 根据疾病名称删除科室信息。
      *
-     * @param name 要删除的科室名称
-     * @return 删除成功后返回被删除的疾病对象的 Optional，如果找不到对应名称的科室则返回空 Optional
-     * @throws NameNotFoundException 如果找不到对应名称的科室，则抛出 NameNotFoundException 异常
+     * @param id 要删除的科室id
+     * @return 删除成功后返回被删除的疾病对象的 Optional，如果找不到对应id的科室则返回空 Optional
+     * @throws IdNotFoundException 如果找不到对应id的科室，则抛出 IdNotFoundException 异常
      */
-    public Optional<Department> deleteDepartmentByName(String name) throws NameNotFoundException {
-        Optional<Department> existedDepartment = departmentRepository.findDepartmentByName(name);
+    public Optional<Department> deleteDepartmentById(ObjectId id) throws IdNotFoundException {
+        Optional<Department> existedDepartment = departmentRepository.findById(id);
 
         //对应名字的department不存在则报错
         if(!existedDepartment.isPresent()){
             // id不存在，返回空Optional作为错误指示
-            throw new NameNotFoundException("对应科室不存在，无法删除");
+            throw new IdNotFoundException("对应科室不存在，无法删除");
         }
 
         // 确保存在一个"待定"的Category

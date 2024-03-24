@@ -44,17 +44,17 @@ public class DiseaseService {
     /**
      * 根据疾病名称删除疾病信息。
      *
-     * @param name 要删除的疾病名称
+     * @param id 要删除的疾病id
      * @return 删除成功后返回被删除的疾病对象的 Optional，如果找不到对应名称的疾病则返回空 Optional
-     * @throws DefaultException 如果找不到对应名称的疾病，则抛出 DefaultException 异常
+     * @throws IdNotFoundException 如果找不到对应名称的疾病，则抛出 IdNotFoundException 异常
      */
-    public Optional<Disease> deleteDiseaseByName(String name) throws DefaultException{
-        Optional<Disease> existedDisease = diseaseRepository.findDiseaseByName(name);
+    public Optional<Disease> deleteDiseaseById(ObjectId id) throws IdNotFoundException{
+        Optional<Disease> existedDisease = diseaseRepository.findById(id);
 
         //对应名字的disease不存在则报错
         if(!existedDisease.isPresent()){
             // id不存在，返回空Optional作为错误指示
-            throw new DefaultException("名字不存在");
+            throw new IdNotFoundException("对应疾病不存在");
         }
         diseaseRepository.delete(existedDisease.get());
         return existedDisease;

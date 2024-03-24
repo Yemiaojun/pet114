@@ -6,10 +6,7 @@ import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
 import com.example.wechat.model.Facility;
 import com.example.wechat.service.DepartmentService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +15,7 @@ import utils.Result;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -64,24 +62,30 @@ public class DepartmentController {
     /**
      * 删除部门信息。
      *
-     * @param name    要删除的部门名称
+     * @param payload    请求体信息，包含部门id
      * @param session HTTP 会话
      * @return 删除成功后的部门信息
      */
     @ApiOperation(value="删除部门", notes = "删除部门，需要管理员权限")
+    @ApiImplicitParam(name = "id", value = "部门", required = true, dataType = "String", paramType = "query")
     @DeleteMapping ("/deleteDepartment")
     public ResponseEntity<String> deleteDepartment(
-            @ApiParam(value = "科室名字", required = true) @RequestBody String name,
+            @RequestBody Map<String, String> payload,
             HttpSession session) {
 
         // 检查会话中是否有用户ID和auth信息
         String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
 
+
+        // 从请求体中获取部门id
+        String id = payload.get("id");
+
+
         // 确认用户已登录且具有管理员权限
         if (userIdStr != null && "2".equals(userAuth)) {
             try{
-                Optional<Department> optionalDepartment = departmentService.deleteDepartmentByName(name);
+                Optional<Department> optionalDepartment = departmentService.deleteDepartmentById(new ObjectId(id));
                 return ResponseEntity.ok(Result.okGetStringByData("科室删除成功",optionalDepartment));
             }catch (Exception e){
                 return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
