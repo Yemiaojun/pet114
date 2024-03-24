@@ -69,7 +69,7 @@ public class DepartmentController {
      * @return 删除成功后的部门信息
      */
     @ApiOperation(value="删除部门", notes = "删除部门，需要管理员权限")
-    @DeleteMapping ("/deleteDeparment")
+    @DeleteMapping ("/deleteDepartment")
     public ResponseEntity<String> deleteDepartment(
             @ApiParam(value = "科室名字", required = true) @RequestBody String name,
             HttpSession session) {
