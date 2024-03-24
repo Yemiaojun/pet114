@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface DiseaseRepository extends MongoRepository<Disease, ObjectId> {
     Optional<Disease> findDiseaseById(ObjectId id);
     Optional<Disease> findDiseaseByName(String name);
-    Optional<Disease[]> findDiseaseByNameAndCategory(String name, Category category);
 
     @Query("{ 'category.$id': ?0 }")
     List<Disease> findByCategoryId(ObjectId categoryId);
