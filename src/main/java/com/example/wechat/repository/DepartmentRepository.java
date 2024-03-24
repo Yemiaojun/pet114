@@ -18,7 +18,7 @@ public interface DepartmentRepository extends MongoRepository<Department, Object
     List<Department> findAll();
 
     @Query("{'name': {$regex: ?0, $options: 'i'}}")
-    List<Department> findDepartmentBynameLike(String regex);
+    List<Department> findDepartmentByNameLike(String regex);
 
 
 }

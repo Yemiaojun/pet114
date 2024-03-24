@@ -1,6 +1,8 @@
 package com.example.wechat.service;
 
 import com.example.wechat.exception.DefaultException;
+import com.example.wechat.exception.IdNotFoundException;
+import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
 import com.example.wechat.repository.DiseaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,5 +100,44 @@ public class DiseaseService {
         return diseaseRepository.findByCategoryId(categoryId);
     }
 
+
+
+    /**
+     * 根据疾病名称进行模糊匹配查询疾病列表。
+     *
+     * @param name 科室名称关键词
+     * @return 符合模糊匹配条件的疾病列表
+     */
+    public List<Disease> findDiseasesByNameLike(String name) {
+        // 构建一个正则表达式，进行不区分大小写的模糊匹配
+        String regex = ".*" + name + ".*";
+        return diseaseRepository.findDiseasesByNameLike(regex);
+    }
+
+
+
+    /**
+     * 获取所有疾病列表。
+     *
+     * @return 所有疾病的列表
+     */
+    public List<Disease> findAllDiseases() {
+        return diseaseRepository.findAll();
+    }
+
+
+
+    /**
+     * 根据疾病ID查找疾病信息。
+     *
+     * @param id 疾病ID
+     * @return 包含科室信息的 Optional 对象，如果找到则返回疾病信息，否则返回空 Optional
+     * @throws IdNotFoundException 如果对应的疾病ID不存在，则抛出 IdNotFoundException 异常
+     */
+    public Optional<Disease> findDiseaseById(ObjectId id) throws IdNotFoundException{
+        Optional<Disease> disease = diseaseRepository.findById(id);
+        if(disease.isPresent()) return disease;
+        else throw new IdNotFoundException("对应id不存在");
+    }
 
 }

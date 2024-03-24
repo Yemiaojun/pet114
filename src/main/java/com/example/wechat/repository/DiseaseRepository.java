@@ -1,6 +1,7 @@
 package com.example.wechat.repository;
 
 import com.example.wechat.model.Category;
+import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
 import com.example.wechat.model.Drug;
 import org.bson.types.ObjectId;
@@ -17,5 +18,9 @@ public interface DiseaseRepository extends MongoRepository<Disease, ObjectId> {
 
     @Query("{ 'category.$id': ?0 }")
     List<Disease> findByCategoryId(ObjectId categoryId);
+
+    @Query("{'name': {$regex: ?0, $options: 'i'}}")
+    List<Disease> findDiseasesByNameLike(String regex);
+
 
 }

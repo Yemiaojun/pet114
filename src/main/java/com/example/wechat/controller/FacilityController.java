@@ -138,9 +138,9 @@ public class FacilityController {
      * @param session HTTP 会话
      * @return 符合条件的设施列表的 ResponseEntity
      */
-    @ApiOperation(value = "根据科室名字模糊查找用户", notes = "返回符合条件的科室列表，需要管理员权限")
+    @ApiOperation(value = "根据设施名字模糊查找用户", notes = "返回符合条件的设施列表，需要管理员权限")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "获取科室信息成功"),
+            @ApiResponse(code = 200, message = "获取设施信息成功"),
             @ApiResponse(code = 400, message = "用户未登录或不具备更新权限")
     })
     @GetMapping("/searchFacilityByName")

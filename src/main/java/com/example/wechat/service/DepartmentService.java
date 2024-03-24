@@ -120,6 +120,43 @@ public class DepartmentService {
         throw new IdNotFoundException("id不存在,无法更新科室");
     }
 
+    /**
+     * 根据科室名称进行模糊匹配查询科室列表。
+     *
+     * @param name 科室名称关键词
+     * @return 符合模糊匹配条件的科室列表
+     */
+    public List<Department> findDepartmentsByNameLike(String name) {
+        // 构建一个正则表达式，进行不区分大小写的模糊匹配
+        String regex = ".*" + name + ".*";
+        return departmentRepository.findDepartmentByNameLike(regex);
+    }
+
+
+
+    /**
+     * 获取所有科室列表。
+     *
+     * @return 所有科室的列表
+     */
+    public List<Department> findAllDepartments() {
+        return departmentRepository.findAll();
+    }
+
+
+
+    /**
+     * 根据设施ID查找科室信息。
+     *
+     * @param id 科室ID
+     * @return 包含科室信息的 Optional 对象，如果找到则返回科室信息，否则返回空 Optional
+     * @throws IdNotFoundException 如果对应的科室ID不存在，则抛出 IdNotFoundException 异常
+     */
+    public Optional<Department> findDepartmentById(ObjectId id) throws IdNotFoundException{
+        Optional<Department> department = departmentRepository.findById(id);
+        if(department.isPresent()) return department;
+        else throw new IdNotFoundException("对应id不存在");
+    }
 
 
 }
