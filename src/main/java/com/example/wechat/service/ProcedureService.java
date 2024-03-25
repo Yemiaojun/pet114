@@ -10,6 +10,7 @@ import com.example.wechat.model.Procedure;
 import com.example.wechat.repository.ProcedureRepository;
 import org.apache.tomcat.jni.Proc;
 import org.bson.types.ObjectId;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -140,6 +141,22 @@ public class ProcedureService {
 
         List<Procedure> procedures = procedureRepository.findByFacilityId(id);
         return procedures;
+    }
+
+
+    public void deleteProceduresByFacilityId(ObjectId id){
+        List<Procedure> procedures = findProcedureByFacilityId(id);
+        for(Procedure p: procedures){
+            procedureRepository.delete(p);
+        }
+
+    }
+
+
+    @RabbitListener(queues = "${facility.delete.queue}")
+    public void handleFacilityDelete(String facilityId) {
+        // 根据 Facility ID 删除引用了该 Facility 的 Procedure
+        deleteProceduresByFacilityId(new ObjectId(facilityId));
     }
 
 }

@@ -10,7 +10,9 @@ import com.example.wechat.model.Facility;
 import com.example.wechat.model.User;
 import com.example.wechat.repository.FacilityRepository;
 import org.bson.types.ObjectId;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +24,14 @@ public class FacilityService {
     @Autowired
     private FacilityRepository facilityRepository;
 
+    @Autowired
+    private AmqpTemplate rabbitTemplate;
+
+    @Value("${facility.delete.exchange}")
+    private String facilityDeleteExchange;
+
+    @Value("${facility.delete.routing-key}")
+    private String facilityDeleteRoutingKey;
 
     /**
      * 添加一个新的设备信息。
@@ -127,6 +137,10 @@ public class FacilityService {
         Optional<Facility> facility = facilityRepository.findById(id);
         if(facility.isPresent()) return facility;
         else throw new IdNotFoundException("对应id不存在");
+    }
+
+    public void sendDeleteMessage(String facilityId) {
+        rabbitTemplate.convertAndSend(facilityDeleteExchange, facilityDeleteRoutingKey, facilityId);
     }
 
 
