@@ -224,7 +224,15 @@ public class FacilityController {
         return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facility));
     }
 
-
+    
+    /**
+     * 上传设备图像。
+     *
+     * @param file 设施图像文件
+     * @param id 设施id
+     * @param session HTTP 会话
+     * @return 包含图片更新结果的 ResponseEntity
+     */
     @ApiOperation(value = "上传设备图像", notes = "上传设施图片，需要管理员权限")
     @PostMapping("/uploadPic")
     public ResponseEntity<String> uploadPic(
