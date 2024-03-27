@@ -14,4 +14,7 @@ public interface QuestionRepository extends MongoRepository<Question, ObjectId> 
     @Query("{ 'category.$id': ?0 }")
     List<Question> findByCategoryId(ObjectId categoryId);
     // 标准的CRUD操作已由MongoRepository提供
+
+    @Query("{'visible': true}")
+    List<Question> findAllVisibleQuestions();
 }

@@ -26,7 +26,7 @@ public class Question {
     @ApiModelProperty(value = "题干", required = true, example = "世界上最大的海洋是？")
     private String stem;
 
-    @ApiModelProperty(value = "选项列表", example = "[\"太平洋\", \"大西洋\", \"印度洋\", \"北冰洋\"]")
+    @ApiModelProperty(value = "选项列表", required = true,example = "[\"太平洋\", \"大西洋\", \"印度洋\", \"北冰洋\"]")
     private List<String> optionList;
 
     @ApiModelProperty(value = "分值", example = "5")

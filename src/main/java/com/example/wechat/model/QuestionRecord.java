@@ -15,7 +15,7 @@ public class QuestionRecord {
     @DBRef
     private Question question;
     private String choice;
-    private Boolean trueChoice;
+    private Boolean TorF;
     @DBRef
     private User user;
     @DBRef
