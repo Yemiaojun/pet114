@@ -1,17 +1,13 @@
 package com.example.wechat.service;
 
-import com.example.wechat.model.Category;
-import com.example.wechat.model.Question;
-import com.example.wechat.repository.CategoryRepository;
-import com.example.wechat.repository.QuestionRepository;
+import com.example.wechat.exception.DefaultException;
+import com.example.wechat.model.*;
+import com.example.wechat.repository.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +18,16 @@ public class QuestionService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+
+    @Autowired
+    private QuestionRecordRepository questionRecordRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ExamRepository examRepository;
 
     public Question addQuestion(Question question) {
         question.setVisible(true);
@@ -113,4 +119,36 @@ public class QuestionService {
         Collections.shuffle(questions);
         return questions.stream().limit(n).collect(Collectors.toList());
     }
+
+
+    public void checkQuestionAnswers(List<String> answerList, List<Question> questionList, String examId, String userId) {
+        Optional<User> userOpt = userRepository.findById(new ObjectId(userId));
+        Optional<Exam> examOpt = examRepository.findById(new ObjectId(examId));
+
+        if (!userOpt.isPresent() || !examOpt.isPresent()) {
+            // 这里可以抛出一个自定义的异常或者处理用户和考试不存在的情况
+            throw new DefaultException("考试不存在");
+
+        }
+
+        User user = userOpt.get();
+        Exam exam = examOpt.get();
+
+        for (int i = 0; i < questionList.size(); i++) {
+            Question question = questionList.get(i);
+            String providedAnswer = answerList.get(i);
+
+            QuestionRecord record = new QuestionRecord();
+            record.setQuestion(question);
+            record.setChoice(providedAnswer);
+            record.setTorF(question.getAnswer().equals(providedAnswer));
+            record.setUser(user); // 使用查询得到的User实例
+            record.setExam(exam); // 使用查询得到的Exam实例
+            record.setTime(new Date());
+
+            questionRecordRepository.save(record);
+        }
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package com.example.wechat.controller;
 
+import com.example.wechat.DTO.QuestionAnswersDTO;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.bson.types.ObjectId;
@@ -284,6 +285,24 @@ public class QuestionController {
 
         List<Question> questions = questionService.getRandomQuestions(n, categoryId);
         return ResponseEntity.ok(Result.okGetStringByData("随机题目抽取成功", questions));
+    }
+
+    @ApiOperation(value = "判断答案正确，并生成questionRecords", notes = "传入答案串和题目串，比对答案并生成记录。")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "答案校验完成，记录已生成"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @PostMapping("/checkQuestionAnswers")
+    public ResponseEntity<String> checkQuestionAnswers(
+            @ApiParam(value = "答案和题目列表", required = true) @RequestBody QuestionAnswersDTO questionAnswersDTO,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        questionService.checkQuestionAnswers(questionAnswersDTO.getAnswerList(), questionAnswersDTO.getQuestionList(), questionAnswersDTO.getExamId(), userId);
+        return ResponseEntity.ok(Result.okGetString("答案校验完成，记录已生成"));
     }
 
 
