@@ -24,14 +24,7 @@ public class FacilityService {
     @Autowired
     private FacilityRepository facilityRepository;
 
-    @Autowired
-    private AmqpTemplate rabbitTemplate;
 
-    @Value("${facility.delete.exchange}")
-    private String facilityDeleteExchange;
-
-    @Value("${facility.delete.routing-key}")
-    private String facilityDeleteRoutingKey;
 
     /**
      * 添加一个新的设备信息。
@@ -139,9 +132,26 @@ public class FacilityService {
         else throw new IdNotFoundException("对应id不存在");
     }
 
-    public void sendDeleteMessage(String facilityId) {
-        rabbitTemplate.convertAndSend(facilityDeleteExchange, facilityDeleteRoutingKey, facilityId);
+
+
+    /**
+     * 更新设施的图片URL。
+     *
+     * @param id 设施ID
+     * @param picUrl 图片URL
+     * @throws IdNotFoundException 如果找不到对应的设施ID，则抛出IdNotFoundException
+     */
+    public void updateFacilityPicUrl(ObjectId id, String picUrl) {
+        Optional<Facility> facilityOptional = facilityRepository.findById(id);
+        if (facilityOptional.isPresent()) {
+            Facility facility = facilityOptional.get();
+            facility.setPicUrl(picUrl); // 更新设施的图片URL
+            facilityRepository.save(facility); // 保存更改
+        } else {
+            throw new IdNotFoundException("没有找到对应id"); // 抛出ID未找到异常
+        }
     }
+
 
 
 

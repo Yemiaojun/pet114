@@ -153,10 +153,6 @@ public class ProcedureService {
     }
 
 
-    @RabbitListener(queues = "${facility.delete.queue}")
-    public void handleFacilityDelete(String facilityId) {
-        // 根据 Facility ID 删除引用了该 Facility 的 Procedure
-        deleteProceduresByFacilityId(new ObjectId(facilityId));
-    }
+    
 
 }

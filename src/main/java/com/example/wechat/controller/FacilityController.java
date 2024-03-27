@@ -7,11 +7,13 @@ import com.example.wechat.model.Facility;
 import com.example.wechat.model.User;
 import com.example.wechat.service.DepartmentService;
 import com.example.wechat.service.FacilityService;
+import com.example.wechat.service.FileStorageService;
 import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import utils.Result;
 
 import javax.servlet.http.HttpSession;
@@ -25,6 +27,9 @@ public class FacilityController {
 
     @Autowired
     private FacilityService facilityService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
 
     /**
@@ -217,6 +222,35 @@ public class FacilityController {
 
         Optional<Facility> facility = facilityService.findFacilityById(new ObjectId(id));
         return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facility));
+    }
+
+
+    @ApiOperation(value = "上传设备图像", notes = "上传设施图片，需要管理员权限")
+    @PostMapping("/uploadPic")
+    public ResponseEntity<String> uploadPic(
+            @ApiParam(value = "设施图像文件", required = true) @RequestParam("file") MultipartFile file,
+            @ApiParam(value = "设施id", required = true) @RequestParam("id") String id,
+            HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
+        if (userIdStr == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        }
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查找权限"));
+        }
+
+        try {
+            ObjectId facilityId = new ObjectId(id);
+            Facility facility = facilityService.findFacilityById(facilityId).orElseThrow(() -> new RuntimeException("设备不存在"));
+            String filePath = fileStorageService.storeFacilityPic(file, file.getName());
+
+            facilityService.updateFacilityPicUrl(facilityId, filePath);
+            return ResponseEntity.ok(Result.okGetStringByData("图片更新成功", filePath));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("图片更新失败: " + e.getMessage()));
+        }
     }
 
 
