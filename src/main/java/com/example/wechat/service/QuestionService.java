@@ -71,4 +71,31 @@ public class QuestionService {
         }
         return List.of(); // 如果没有找到对应的Category，返回空列表
     }
+
+    public Optional<Question> findQuestionById(String questionId) {
+        return questionRepository.findById(new ObjectId(questionId));
+    }
+
+    public List<Question> findQuestionsByStemLike(String stem) {
+        String regex = ".*" + stem + ".*";
+        return questionRepository.findByStemLike(regex);
+    }
+
+    public List<Question> findVisibleQuestionsByCategoryId(ObjectId categoryId) {
+        return questionRepository.findByCategoryIdAndVisible(categoryId);
+    }
+
+    public List<Question> findVisibleQuestionsByCategoryName(String categoryName) {
+        Optional<Category> categoryOpt = categoryRepository.findByName(categoryName);
+        if (categoryOpt.isPresent()) {
+            Category category = categoryOpt.get();
+            return questionRepository.findByCategoryIdAndVisible(category.getId());
+        }
+        return List.of(); // 如果没有找到对应的Category，返回空列表
+    }
+
+    public List<Question> findVisibleQuestionsByStemLike(String stem) {
+        String regex = ".*" + stem + ".*";
+        return questionRepository.findByStemLikeAndVisible(regex);
+    }
 }
