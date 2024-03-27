@@ -72,9 +72,9 @@ public class FacilityController {
      * @return 删除成功后的设备信息
      */
     @ApiOperation(value="删除设备", notes = "删除设备，需要管理员权限")
-    @ApiImplicitParam(name = "id", value = "部门", required = true, dataType = "String", paramType = "query")
+    @ApiImplicitParam(name = "id", value = "设备", required = true, dataType = "String", paramType = "query")
     @DeleteMapping("/deleteFacility")
-    public ResponseEntity<String> facilityDepartment(
+    public ResponseEntity<String> deleteFacility(
             @RequestBody Map<String, String> payload,
             HttpSession session) {
 
