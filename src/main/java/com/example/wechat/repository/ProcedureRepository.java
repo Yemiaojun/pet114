@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface ProcedureRepository extends MongoRepository<Procedure, ObjectId> {
 
-    @Query("{ 'facility.$id': ?0 }")
-    List<Procedure> findByFacilityId(ObjectId facilityId);
+    @Query("{ 'role.$id': ?0 }")
+    List<Procedure> findByRoleId(ObjectId roleId);
 }
