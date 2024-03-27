@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -97,5 +98,19 @@ public class QuestionService {
     public List<Question> findVisibleQuestionsByStemLike(String stem) {
         String regex = ".*" + stem + ".*";
         return questionRepository.findByStemLikeAndVisible(regex);
+    }
+
+    public List<Question> getRandomQuestions(Integer n, String categoryIdStr) {
+        List<Question> questions;
+        if (categoryIdStr != null && !categoryIdStr.isEmpty()) {
+            ObjectId categoryId = new ObjectId(categoryIdStr);
+            questions = findVisibleQuestionsByCategoryId(categoryId);
+        } else {
+            questions = findAllVisibleQuestions();
+        }
+
+        // 打乱问题列表并取前n个
+        Collections.shuffle(questions);
+        return questions.stream().limit(n).collect(Collectors.toList());
     }
 }

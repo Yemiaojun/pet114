@@ -267,6 +267,25 @@ public class QuestionController {
         return ResponseEntity.ok(Result.okGetStringByData("查找可见问题成功", questions));
     }
 
+    @ApiOperation(value = "随机抽取n道题", notes = "可以传入categoryid进行筛选，也可以不传入从所有题目中抽取")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "随机题目抽取成功"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @GetMapping("/getRandomQuestions")
+    public ResponseEntity<String> getRandomQuestions(
+            @ApiParam(value = "数量n", required = true) @RequestParam Integer n,
+            @ApiParam(value = "类别ID（可选）") @RequestParam(required = false) String categoryId,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        List<Question> questions = questionService.getRandomQuestions(n, categoryId);
+        return ResponseEntity.ok(Result.okGetStringByData("随机题目抽取成功", questions));
+    }
+
 
 
 
