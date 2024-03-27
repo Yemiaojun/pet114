@@ -167,4 +167,126 @@ public class QuestionController {
         return ResponseEntity.ok(Result.okGetStringByData("获取问题列表成功", questions));
     }
 
+    @ApiOperation(value = "根据ID获取问题", notes = "根据问题的ID返回问题详情")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取问题信息成功"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 404, message = "问题未找到")
+    })
+    @GetMapping("/findQuestionById")
+    public ResponseEntity<String> findQuestionById(
+            @ApiParam(value = "问题ID", required = true) @RequestParam String questionId,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        Optional<Question> questionOpt = questionService.findQuestionById(questionId);
+        if (questionOpt.isPresent()) {
+            return ResponseEntity.ok(Result.okGetStringByData("获取问题信息成功", questionOpt.get()));
+        } else {
+            return ResponseEntity.status(404).body(Result.errorGetString("问题未找到"));
+        }
+    }
+
+    @ApiOperation(value = "根据题面模糊查找问题", notes = "根据题面模糊查找题目")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "查找问题成功"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @GetMapping("/findQuestionByStem")
+    public ResponseEntity<String> findQuestionByStem(
+            @ApiParam(value = "题面", required = true) @RequestParam String stem,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        List<Question> questions = questionService.findQuestionsByStemLike(stem);
+        return ResponseEntity.ok(Result.okGetStringByData("查找问题成功", questions));
+    }
+
+    @ApiOperation(value = "根据类别ID获取可见问题", notes = "返回引用了指定类别ID且可见的所有问题列表")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取可见问题列表成功"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @GetMapping("/findVisibleQuestionsByCategoryId")
+    public ResponseEntity<String> findVisibleQuestionsByCategoryId(
+            @ApiParam(value = "类别ID", required = true) @RequestParam String categoryIdStr,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        try {
+            ObjectId categoryId = new ObjectId(categoryIdStr);
+            List<Question> questions = questionService.findVisibleQuestionsByCategoryId(categoryId);
+            return ResponseEntity.ok(Result.okGetStringByData("获取可见问题列表成功", questions));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("无效的类别ID"));
+        }
+    }
+
+    @ApiOperation(value = "根据类别名称获取可见问题", notes = "返回引用了指定类别名称且可见的所有问题列表")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取可见问题列表成功"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @GetMapping("/findVisibleQuestionsByCategoryName")
+    public ResponseEntity<String> findVisibleQuestionsByCategoryName(
+            @ApiParam(value = "类别名称", required = true) @RequestParam String categoryName,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        List<Question> questions = questionService.findVisibleQuestionsByCategoryName(categoryName);
+        return ResponseEntity.ok(Result.okGetStringByData("获取可见问题列表成功", questions));
+    }
+
+    @ApiOperation(value = "根据题面模糊查找可见问题", notes = "根据题面模糊查找题目，仅返回可见问题")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "查找问题成功"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @GetMapping("/findVisibleQuestionsByStem")
+    public ResponseEntity<String> findVisibleQuestionsByStem(
+            @ApiParam(value = "题面", required = true) @RequestParam String stem,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        List<Question> questions = questionService.findVisibleQuestionsByStemLike(stem);
+        return ResponseEntity.ok(Result.okGetStringByData("查找可见问题成功", questions));
+    }
+
+    @ApiOperation(value = "随机抽取n道题", notes = "可以传入categoryid进行筛选，也可以不传入从所有题目中抽取")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "随机题目抽取成功"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @GetMapping("/getRandomQuestions")
+    public ResponseEntity<String> getRandomQuestions(
+            @ApiParam(value = "数量n", required = true) @RequestParam Integer n,
+            @ApiParam(value = "类别ID（可选）") @RequestParam(required = false) String categoryId,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        List<Question> questions = questionService.getRandomQuestions(n, categoryId);
+        return ResponseEntity.ok(Result.okGetStringByData("随机题目抽取成功", questions));
+    }
+
+
+
+
 }

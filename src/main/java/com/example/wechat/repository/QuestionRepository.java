@@ -17,4 +17,13 @@ public interface QuestionRepository extends MongoRepository<Question, ObjectId> 
 
     @Query("{'visible': true}")
     List<Question> findAllVisibleQuestions();
+
+    @Query("{'stem': {$regex: ?0, $options: 'i'}}")
+    List<Question> findByStemLike(String regex);
+
+    @Query("{ 'category.$id': ?0, 'visible': true }")
+    List<Question> findByCategoryIdAndVisible(ObjectId categoryId);
+
+    @Query("{'stem': {$regex: ?0, $options: 'i'}, 'visible': true}")
+    List<Question> findByStemLikeAndVisible(String regex);
 }
