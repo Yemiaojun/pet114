@@ -2,14 +2,17 @@ package com.example.wechat.controller;
 
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.model.Department;
+import com.example.wechat.model.Facility;
 import com.example.wechat.model.Procedure;
 import com.example.wechat.service.DepartmentService;
+import com.example.wechat.service.FileStorageService;
 import com.example.wechat.service.ProcedureService;
 import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import utils.Result;
 
 import javax.servlet.http.HttpSession;
@@ -24,6 +27,9 @@ public class ProcedureController {
 
     @Autowired
     private ProcedureService procedureService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     /**
      * 添加新的流程信息。
@@ -162,5 +168,100 @@ public class ProcedureController {
         List<Procedure> procedures = procedureService.findProcedureByRoleId(new ObjectId(id));
         return ResponseEntity.ok(Result.okGetStringByData("获取部流程息成功", procedures));
     }
+
+    /**
+     * 上传流程资源。
+     *
+     * @param file     流程资源文件
+     * @param id       流程id
+     * @param type     资源类型（图片或视频）
+     * @param session  HTTP 会话
+     * @return 包含更新结果的 ResponseEntity
+     */
+    @ApiOperation(value = "上传流程资源", notes = "上传流程资源，需要管理员权限")
+    @PostMapping("/uploadResource")
+    public ResponseEntity<String> uploadResource(
+            @ApiParam(value = "流程资源文件", required = true) @RequestParam("file") MultipartFile file,
+            @ApiParam(value = "流程id", required = true) @RequestParam String id,
+            @ApiParam(value = "资源类型（pic 或 vid）", required = true) @RequestParam String type,
+            HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
+        if (userIdStr == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        }
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查找权限"));
+        }
+
+        try {
+            ObjectId procedureId = new ObjectId(id);
+            Procedure procedure = procedureService.findProcedureById(procedureId).orElseThrow(() -> new RuntimeException("设备不存在"));
+            String filePath;
+            if ("pic".equalsIgnoreCase(type)) {
+                filePath = fileStorageService.storeProcedurePic(file, file.getOriginalFilename());
+                procedureService.updateProcedurePicUrl(procedureId, filePath);
+                return ResponseEntity.ok(Result.okGetStringByData("图片更新成功", filePath));
+            } else if ("vid".equalsIgnoreCase(type)) {
+                filePath = fileStorageService.storeProcedureVid(file, file.getOriginalFilename());
+                procedureService.uploadProcedureVidUrl(procedureId, filePath);
+                return ResponseEntity.ok(Result.okGetStringByData("视频更新成功", filePath));
+            } else {
+                return ResponseEntity.badRequest().body(Result.errorGetString("不支持的资源类型"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("资源更新失败: " + e.getMessage()));
+        }
+    }
+
+
+    /**
+     * 删除流程资源。
+     *
+     * @param name     流程资源文件名
+     * @param id       流程id
+     * @param type     资源类型（图片或视频）
+     * @param session  HTTP 会话
+     * @return 包含更新结果的 ResponseEntity
+     */
+    @ApiOperation(value = "删除流程资源", notes = "删除流程资源，需要管理员权限")
+    @PostMapping("/deleteResource")
+    public ResponseEntity<String> deleteResource(
+            @ApiParam(value = "流程资源文件名", required = true) @RequestParam String name,
+            @ApiParam(value = "流程id", required = true) @RequestParam String id,
+            @ApiParam(value = "资源类型（pic 或 vid）", required = true) @RequestParam String type,
+            HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
+        if (userIdStr == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        }
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查找权限"));
+        }
+
+        try {
+            ObjectId procedureId = new ObjectId(id);
+            Procedure procedure = procedureService.findProcedureById(procedureId).orElseThrow(() -> new RuntimeException("设备不存在"));
+            String filePath;
+            if ("pic".equalsIgnoreCase(type)) {
+                fileStorageService.deleteProcedurePic(procedure.getName(), name);
+                procedureService.deleteProcedurePicUrl(procedureId, name);
+                return ResponseEntity.ok(Result.okGetStringByData("图片删除成功",name));
+            } else if ("vid".equalsIgnoreCase(type)) {
+                fileStorageService.deleteProcedureVid(procedure.getName(), name);
+                procedureService.deleteProcedureVidUrl(procedureId, name);
+                return ResponseEntity.ok(Result.okGetStringByData("视频删除成功",name));
+            } else {
+                return ResponseEntity.badRequest().body(Result.errorGetString("不支持的资源类型"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("资源更新失败: " + e.getMessage()));
+        }
+    }
+
+
 
 }

@@ -107,6 +107,18 @@ public class ProcedureService {
     }
 
 
+    /**
+     * 根据流程ID查找流程信息。
+     *
+     * @param id 流程ID
+     * @return 包含流程信息的 Optional 对象，如果找到则返回流程信息，否则返回空 Optional
+     * @throws IdNotFoundException 如果对应的流程ID不存在，则抛出 IdNotFoundException 异常
+     */
+    public Optional<Procedure> findProcedureById(ObjectId id) throws IdNotFoundException{
+        Optional<Procedure> procedure = procedureRepository.findById(id);
+        if(procedure.isPresent()) return procedure;
+        else throw new IdNotFoundException("对应id不存在");
+    }
 
 
     /**
@@ -120,6 +132,84 @@ public class ProcedureService {
         List<Procedure> procedures = procedureRepository.findByRoleId(id);
         return procedures;
     }
+
+
+    /**
+     * 上传流程的图片URL。
+     *
+     * @param id 流程ID
+     * @param picUrl 图片URL
+     * @throws IdNotFoundException 如果找不到对应的流程ID，则抛出IdNotFoundException
+     */
+    public void updateProcedurePicUrl(ObjectId id, String picUrl) {
+        Optional<Procedure> procedureOptional = procedureRepository.findById(id);
+        if (procedureOptional.isPresent()) {
+            Procedure procedure = procedureOptional.get();
+            procedure.getPicUrlList().add(picUrl); // 更新流程的图片URL
+            procedureRepository.save(procedure); // 保存更改
+        } else {
+            throw new IdNotFoundException("没有找到对应id"); // 抛出ID未找到异常
+        }
+    }
+
+
+    /**
+     * 上传流程的视频URL。
+     *
+     * @param id 流程ID
+     * @param vidUrl 视频URL
+     * @throws IdNotFoundException 如果找不到对应的流程ID，则抛出IdNotFoundException
+     */
+    public void uploadProcedureVidUrl(ObjectId id, String vidUrl) {
+        Optional<Procedure> procedureOptional = procedureRepository.findById(id);
+        if (procedureOptional.isPresent()) {
+            Procedure procedure = procedureOptional.get();
+            procedure.getVideoUrlList().add(vidUrl); // 更新流程的图片URL
+            procedureRepository.save(procedure); // 保存更改
+        } else {
+            throw new IdNotFoundException("没有找到对应id"); // 抛出ID未找到异常
+        }
+    }
+
+
+    /**
+     * 删除流程的图片URL。
+     *
+     * @param id 流程ID
+     * @param picUrl 图片URL
+     * @throws IdNotFoundException 如果找不到对应的流程ID，则抛出IdNotFoundException
+     */
+    public void deleteProcedurePicUrl(ObjectId id, String picUrl) {
+        Optional<Procedure> procedureOptional = procedureRepository.findById(id);
+        if (procedureOptional.isPresent()) {
+            Procedure procedure = procedureOptional.get();
+            String procedureName = procedure.getName();
+            procedure.getPicUrlList().remove(picUrl);// 更新流程的图片URL
+            procedureRepository.save(procedure); // 保存更改
+        } else {
+            throw new IdNotFoundException("没有找到对应id"); // 抛出ID未找到异常
+        }
+    }
+
+    /**
+     * 删除流程的视频URL。
+     *
+     * @param id 流程ID
+     * @param vidUrl 视频URL
+     * @throws IdNotFoundException 如果找不到对应的流程ID，则抛出IdNotFoundException
+     */
+    public void deleteProcedureVidUrl(ObjectId id, String vidUrl) {
+        Optional<Procedure> procedureOptional = procedureRepository.findById(id);
+        if (procedureOptional.isPresent()) {
+            Procedure procedure = procedureOptional.get();
+            String procedureName = procedure.getName();
+            procedure.getVideoUrlList().remove(vidUrl); // 更新流程的图片URL
+            procedureRepository.save(procedure); // 保存更改
+        } else {
+            throw new IdNotFoundException("没有找到对应id"); // 抛出ID未找到异常
+        }
+    }
+
 
 
 
