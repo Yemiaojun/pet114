@@ -229,7 +229,7 @@ public class FacilityController {
     @PostMapping("/uploadPic")
     public ResponseEntity<String> uploadPic(
             @ApiParam(value = "设施图像文件", required = true) @RequestParam("file") MultipartFile file,
-            @ApiParam(value = "设施id", required = true) @RequestParam("id") String id,
+            @ApiParam(value = "设施id", required = true) @RequestParam String id,
             HttpSession session) {
         String userIdStr = (String) session.getAttribute("userId");
         if (userIdStr == null) {

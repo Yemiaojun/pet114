@@ -16,7 +16,7 @@ public class FileStorageService {
     @Value("${file.avatar-dir}")
     private String avatarDir;
 
-    @Value("file/facilitypic/")
+    @Value("file/facilitypicdir/")
     private String facilityPicDir;
 
     public String storeAvatar(MultipartFile file, String username) throws IOException {
