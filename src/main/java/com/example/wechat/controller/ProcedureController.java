@@ -22,6 +22,7 @@ import java.util.Optional;
 
 
 @RestController
+@CrossOrigin
 @RequestMapping("/procedure")
 public class ProcedureController {
 
@@ -263,5 +264,7 @@ public class ProcedureController {
     }
 
 
-
+    public ResponseEntity<String> findProceduresByFacilityId(String id, HttpSession session) {
+        return null;
+    }
 }

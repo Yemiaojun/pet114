@@ -211,12 +211,8 @@ public class ProcedureService {
     }
 
 
+    public Object findProcedureByFacilityId(Object any) {
 
-
-
-
-
-
-
-
+        return any;
+    }
 }
