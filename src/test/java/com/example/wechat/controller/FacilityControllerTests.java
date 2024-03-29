@@ -3,6 +3,7 @@ package com.example.wechat.controller;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.model.Facility;
 import com.example.wechat.service.FacilityService;
+import com.example.wechat.service.FileStorageService;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +12,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import utils.Result;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +38,10 @@ public class FacilityControllerTests {
     @InjectMocks
     private FacilityController facilityController;
 
+
+    @Mock
+    private FileStorageService fileStorageService;
+
     @Test
     public void testAddFacilitySuccess() {
         // 模拟会话中的用户ID和权限
@@ -53,7 +61,7 @@ public class FacilityControllerTests {
     public void testAddFacilityFailure() {
         // 模拟会话中的用户ID和权限
         when(session.getAttribute("userId")).thenReturn("1");
-        when(session.getAttribute("authLevel")).thenReturn("1");
+        when(session.getAttribute("authLevel")).thenReturn("2");
 
         // 模拟 Facility 对象和 FacilityService 的行为
         Facility facility = new Facility(); // 创建一个设备对象
@@ -127,7 +135,7 @@ public class FacilityControllerTests {
     @Test
     public void testFindFacilityByNameSuccess() {
         // 模拟会话中的管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("2");
+        when(session.getAttribute("userId")).thenReturn("2");
 
         // 模拟 FacilityService 的行为（成功查询设备）
         List<Facility> facilities = new ArrayList<>(); // 模拟查询到的设备列表
@@ -140,20 +148,11 @@ public class FacilityControllerTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Test
-    public void testFindFacilityByNameUnauthorized() {
-        // 模拟会话中的非管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("1");
-
-        // 调用被测试的方法
-        ResponseEntity<String> response = facilityController.findFacilityByName("testName", session);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
 
     @Test
     public void testFindFacilityByNameNotLoggedIn() {
         // 模拟会话中没有用户ID和权限信息（未登录）
-        when(session.getAttribute("authLevel")).thenReturn(null);
+        when(session.getAttribute("userId")).thenReturn(null);
 
         // 调用被测试的方法
         ResponseEntity<String> response = facilityController.findFacilityByName("testName", session);
@@ -166,7 +165,7 @@ public class FacilityControllerTests {
     @Test
     public void testFindAllFacilitiesSuccess() {
         // 模拟会话中的管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("2");
+        when(session.getAttribute("userId")).thenReturn("2");
 
         // 模拟 FacilityService 的行为（成功查询所有设备）
         List<Facility> facilities = new ArrayList<>(); // 模拟查询到的所有设备列表
@@ -179,20 +178,11 @@ public class FacilityControllerTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Test
-    public void testFindAllFacilitiesUnauthorized() {
-        // 模拟会话中的非管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("1");
-
-        // 调用被测试的方法
-        ResponseEntity<String> response = facilityController.findAllFacilities(session);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
 
     @Test
     public void testFindAllFacilitiesNotLoggedIn() {
         // 模拟会话中没有用户ID和权限信息（未登录）
-        when(session.getAttribute("authLevel")).thenReturn(null);
+        when(session.getAttribute("userId")).thenReturn(null);
 
         // 调用被测试的方法
         ResponseEntity<String> response = facilityController.findAllFacilities(session);
@@ -205,39 +195,80 @@ public class FacilityControllerTests {
     @Test
     public void testFindFacilityByIdSuccess() {
         // 模拟会话中的管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("2");
+        when(session.getAttribute("userId")).thenReturn("2");
 
         // 模拟 FacilityService 的行为（成功查询设备）
         Optional<Facility> facility = Optional.of(new Facility()); // 模拟查询到的设备
         when(facilityService.findFacilityById(any(ObjectId.class))).thenReturn(facility);
 
         // 调用被测试的方法
-        ResponseEntity<String> response = facilityController.findFacilityById("testId", session);
+        ResponseEntity<String> response = facilityController.findFacilityById("5fc73dfac116601124123456", session);
 
         // 验证返回的响应是否正确
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Test
-    public void testFindFacilityByIdUnauthorized() {
-        // 模拟会话中的非管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("1");
-
-        // 调用被测试的方法
-        ResponseEntity<String> response = facilityController.findFacilityById("testId", session);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
 
     @Test
     public void testFindFacilityByIdNotLoggedIn() {
         // 模拟会话中没有用户ID和权限信息（未登录）
-        when(session.getAttribute("authLevel")).thenReturn(null);
+        when(session.getAttribute("userId")).thenReturn(null);
 
         // 调用被测试的方法
         ResponseEntity<String> response = facilityController.findFacilityById("testId", session);
 
         // 验证返回的响应是否正确
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+
+    @Test
+    public void testUploadPicSuccess() throws IOException {
+        // 模拟会话中的管理员权限
+        when(session.getAttribute("userId")).thenReturn("1");
+        when(session.getAttribute("authLevel")).thenReturn("2");
+
+        // 模拟设备服务的行为（成功查找设备并更新图片）
+        ObjectId facilityId = new ObjectId("5fc73dfac116601124123456");
+        Facility facility = new Facility();
+        when(facilityService.findFacilityById(any(ObjectId.class))).thenReturn(Optional.of(facility));
+        when(fileStorageService.storeFacilityPic(any(), anyString())).thenReturn("uploadedFilePath");
+
+        // 准备上传的文件
+        MockMultipartFile file = new MockMultipartFile("file", "test.png", "image/png", "test image".getBytes());
+
+        // 调用被测试的方法
+        ResponseEntity<String> response = facilityController.uploadPic(file, facilityId.toHexString(), session);
+
+        // 验证返回的响应是否正确
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(Result.okGetStringByData("图片更新成功", "uploadedFilePath"), response.getBody());
+    }
+
+    @Test
+    public void testUploadPicUserNotLoggedIn() {
+        // 模拟会话中没有用户登录
+
+        // 调用被测试的方法
+        ResponseEntity<String> response = facilityController.uploadPic(null, "validFacilityId", session);
+
+        // 验证返回的响应是否正确
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(Result.errorGetString("用户未登录"), response.getBody());
+    }
+
+    @Test
+    public void testUploadPicUserNotAuthorized() {
+        // 模拟会话中的用户登录但没有管理员权限
+        when(session.getAttribute("userId")).thenReturn("1");
+        when(session.getAttribute("authLevel")).thenReturn("1");
+
+        // 调用被测试的方法
+        ResponseEntity<String> response = facilityController.uploadPic(null, "validFacilityId", session);
+
+        // 验证返回的响应是否正确
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(Result.errorGetString("用户未登录或不具备查找权限"), response.getBody());
     }
 
 

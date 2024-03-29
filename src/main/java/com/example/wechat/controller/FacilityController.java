@@ -123,20 +123,20 @@ public class FacilityController {
         }
     }
 
-    @ApiOperation(value = "根据设施名字模糊查找用户", notes = "返回符合条件的设施列表，需要管理员权限")
+    @ApiOperation(value = "根据设施名字模糊查找用户", notes = "返回符合条件的设施列表，需要登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取设施信息成功"),
-            @ApiResponse(code = 400, message = "用户未登录或不具备更新权限")
+            @ApiResponse(code = 400, message = "用户未登录")
     })
     @GetMapping("/searchFacilityByName")
     public ResponseEntity<String> findFacilityByName(
             @ApiParam(name = "name", value = "设备名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {
         // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
-            // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查找权限"));
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            // 用户未登录
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
 
         List<Facility> facilities = facilityService.findFacilitiesByNameLike(name);
@@ -146,16 +146,16 @@ public class FacilityController {
 
 
 
-    @ApiOperation(value = "获取所有设备", notes = "返回所有设备列表，需要管理员权限")
+    @ApiOperation(value = "获取所有设备", notes = "返回所有设备列表，需要登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有设备信息成功"),
-            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+            @ApiResponse(code = 400, message = "用户未登录")
     })
     @GetMapping("/findAllFacilities")
     public ResponseEntity<String> findAllFacilities(HttpSession session) {
-        // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
+        // 检查用户登录
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
             // 用户未登录或不具备管理员权限
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
         }
@@ -167,20 +167,20 @@ public class FacilityController {
 
 
 
-    @ApiOperation(value = "根据科室id获取设备", notes = "返回对应id，需要管理员权限")
+    @ApiOperation(value = "根据科室id获取设备", notes = "返回对应id，需要用户登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有设备信息成功"),
-            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+            @ApiResponse(code = 400, message = "用户未登录")
     })
     @GetMapping("/findFacilityById")
     public ResponseEntity<String> findFacilityById(
             @ApiParam(name = "id", value = "设备id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
             HttpSession session) {
         // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
             // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
 
         Optional<Facility> facility = facilityService.findFacilityById(new ObjectId(id));
