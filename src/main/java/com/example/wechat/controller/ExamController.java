@@ -178,6 +178,34 @@ public class ExamController {
         }
     }
 
+    @ApiOperation(value = "管理员模糊搜索考试", notes = "管理员根据考试名进行模糊搜索，并可根据考试的公私性及状态进行筛选。")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "搜索成功"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 403, message = "无管理员权限")
+    })
+    @GetMapping("/adminSearch")
+    public ResponseEntity<String> adminSearchExams(
+            @ApiParam(value = "考试名称", required = true) @RequestParam String name,
+            @ApiParam(value = "考试状态", required = false) @RequestParam(required = false) String status,
+            @ApiParam(value = "是否为私人考试", required = false) @RequestParam(required = false) Boolean isPrivate,
+            HttpSession session) {
+        String userAuth = (String) session.getAttribute("authLevel");
+
+        // 检查是否为管理员
+        if (!"2".equals(userAuth)) {
+            return ResponseEntity.status(403).body(Result.errorGetString("无管理员权限"));
+        }
+
+        List<Exam> exams = examService.adminSearchExams(name, status, isPrivate);
+        if (exams.isEmpty()) {
+            return ResponseEntity.ok(Result.okGetStringByData("没有找到符合条件的考试", exams));
+        } else {
+            return ResponseEntity.ok(Result.okGetStringByData("搜索成功", exams));
+        }
+    }
+
+
 
 
 

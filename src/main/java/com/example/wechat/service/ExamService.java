@@ -178,4 +178,28 @@ public class ExamService {
         return mongoTemplate.find(query, Exam.class);
     }
 
+    public List<Exam> adminSearchExams(String name, String status, Boolean isPrivate) {
+        Query query = new Query();
+
+        // 名称模糊搜索
+        if (name != null && !name.isEmpty()) {
+            query.addCriteria(Criteria.where("name").regex(name, "i"));
+        }
+
+        // 状态筛选
+        if (status != null) {
+            query.addCriteria(Criteria.where("status").is(status));
+        } else {
+            query.addCriteria(Criteria.where("status").ne("Deleted"));
+        }
+
+        // 私有性筛选
+        if (isPrivate != null) {
+            query.addCriteria(Criteria.where("isPrivate").is(isPrivate));
+        }
+
+        return mongoTemplate.find(query, Exam.class);
+    }
+
+
 }
