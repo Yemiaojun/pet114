@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 public class UserController {
     @Autowired
     private UserService userService;
+
     @Autowired
     private FileStorageService fileStorageService;
 

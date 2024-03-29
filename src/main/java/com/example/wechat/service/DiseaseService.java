@@ -140,5 +140,4 @@ public class DiseaseService {
         else throw new IdNotFoundException("对应id不存在");
     }
 
-
 }
