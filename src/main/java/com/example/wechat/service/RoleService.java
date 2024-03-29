@@ -1,8 +1,10 @@
 package com.example.wechat.service;
 
 
+import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
+import com.example.wechat.model.Category;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Facility;
 import com.example.wechat.model.Role;
@@ -110,6 +112,21 @@ public class RoleService {
         Optional<Role> role = roleRepository.findById(id);
         if(role.isPresent()) return role;
         else throw new IdNotFoundException("对应id不存在");
+    }
+
+
+    public Role ensurePendingRoleExists() {
+        Role pendingRole = new Role();
+        pendingRole.setName("待定");
+
+        // 尝试添加"待定"类别，如果它已经存在，这个方法将不会抛出异常，而是返回已存在的类别
+        try {
+            return addRole(pendingRole);
+        } catch (DefaultException e) {
+            // 如果因为类别名已存在而抛出异常，则尝试返回现有的"待定"类别
+            return  roleRepository.findRoleByName("待定")
+                    .orElseThrow(() -> new DefaultException("无法找到'待定'类别，且尝试创建时出错"));
+        }
     }
 
 

@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/questionRecords")
 public class QuestionRecordController {
 

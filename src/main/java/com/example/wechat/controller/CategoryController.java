@@ -15,6 +15,7 @@ import utils.Result;
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
 @RestController
+@CrossOrigin
 @RequestMapping("/category")
 public class CategoryController {
 

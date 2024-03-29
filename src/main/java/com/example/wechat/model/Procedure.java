@@ -13,8 +13,9 @@ public class Procedure {
     private ObjectId id;
     private String name;
     private String text;
-    private Integer step;
+
     private List<String> picUrlList;
     private List<String> videoUrlList;
-    private Facility facility;
+
+    private Role role;
 }

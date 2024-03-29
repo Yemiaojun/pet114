@@ -20,9 +20,11 @@ public class Exam {
     private User holder;
     @DBRef
     private List<User> participantList;
-    private List<ObjectId> whiteList;
+    @DBRef
+    private List<User> whiteList;
     private Date startTime;
     private Date endTime;
     private String status;
     private Integer score;
+    private boolean Private;
 }

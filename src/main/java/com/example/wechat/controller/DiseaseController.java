@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
  * DiseaseController 提供了与疾病相关的操作的控制器。
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/disease")
 public class DiseaseController {
 

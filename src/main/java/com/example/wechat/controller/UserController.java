@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin
 
 public class UserController {
     @Autowired
@@ -67,8 +68,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(Result.errorGetString("用户名或密码错误"));
         }
     }
-
-
 
     @ApiOperation(value = "获取当前用户信息", notes = "返回当前会话中的用户信息")
     @GetMapping("/current")
