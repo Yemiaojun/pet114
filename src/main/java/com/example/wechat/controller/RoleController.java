@@ -135,16 +135,16 @@ public class RoleController {
      * @param session HTTP 会话
      * @return 所有角色列表的 ResponseEntity
      */
-    @ApiOperation(value = "获取所有角色", notes = "返回所有角色列表，需要管理员权限")
+    @ApiOperation(value = "获取所有角色", notes = "返回所有角色列表，需要用户登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有角色信息成功"),
-            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+            @ApiResponse(code = 400, message = "用户未登录")
     })
     @GetMapping("/findAllRoles")
     public ResponseEntity<String> findAllRoles(HttpSession session) {
         // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
             // 用户未登录或不具备管理员权限
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
         }
@@ -163,7 +163,7 @@ public class RoleController {
      * @param session HTTP会话
      * @return ResponseEntity 包含角色信息的响应实体
      */
-    @ApiOperation(value = "根据角色id获取设备", notes = "返回对应id，需要管理员权限")
+    @ApiOperation(value = "根据角色id获取角色", notes = "返回对应id")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有角色信息成功"),
             @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
@@ -173,8 +173,8 @@ public class RoleController {
             @ApiParam(name = "id", value = "角色id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
             HttpSession session) {
         // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
             // 用户未登录或不具备管理员权限
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
         }
