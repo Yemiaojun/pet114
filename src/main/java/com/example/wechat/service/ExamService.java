@@ -1,8 +1,11 @@
 package com.example.wechat.service;
 
+import com.example.wechat.exception.DefaultException;
 import com.example.wechat.model.Exam;
+import com.example.wechat.model.ExamRecord;
 import com.example.wechat.model.Question;
 import com.example.wechat.model.User;
+import com.example.wechat.repository.ExamRecordRepository;
 import com.example.wechat.repository.ExamRepository;
 import com.example.wechat.repository.QuestionRepository;
 import com.example.wechat.repository.UserRepository;
@@ -28,6 +31,9 @@ public class ExamService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ExamRecordRepository examRecordRepository;
 
     private final MongoTemplate mongoTemplate;
     public ExamService(MongoTemplate mongoTemplate) {
@@ -199,6 +205,52 @@ public class ExamService {
         }
 
         return mongoTemplate.find(query, Exam.class);
+    }
+
+
+
+    public void joinExam(String examId, String userId) {
+        Optional<Exam> examOpt = examRepository.findById(new ObjectId(examId));
+        Optional<User> userOpt = userRepository.findById(new ObjectId(userId));
+
+        if (!examOpt.isPresent() || !userOpt.isPresent()) {
+            throw new DefaultException("考试或用户不存在");
+        }
+
+        Exam exam = examOpt.get();
+        User user = userOpt.get();
+
+        // 更新参加者列表
+        if (!exam.getParticipantList().contains(user)) {
+            exam.getParticipantList().add(user);
+            examRepository.save(exam);
+        }
+
+        // 创建考试记录
+        ExamRecord record = new ExamRecord();
+        record.setExam(exam);
+        record.setUser(user);
+        record.setStatus("未完成");
+        record.setScore(0); // 初始化得分为0
+
+        examRecordRepository.save(record);
+    }
+
+    public void addUserToWhitelist(String examId, String userId) {
+        Optional<Exam> examOpt = examRepository.findById(new ObjectId(examId));
+        Optional<User> userOpt = userRepository.findById(new ObjectId(userId));
+
+        if (!examOpt.isPresent() || !userOpt.isPresent()) {
+            throw new DefaultException("考试或用户不存在");
+        }
+
+        Exam exam = examOpt.get();
+        User user = userOpt.get();
+
+        if (!exam.getWhiteList().contains(user)) {
+            exam.getWhiteList().add(user);
+            examRepository.save(exam);
+        }
     }
 
 

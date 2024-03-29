@@ -2,6 +2,7 @@ package com.example.wechat.controller;
 
 import com.example.wechat.DTO.PrivateExamRequest;
 import com.example.wechat.DTO.PublicExamRequest;
+import com.example.wechat.exception.DefaultException;
 import com.example.wechat.model.Exam;
 import com.example.wechat.service.ExamService;
 import io.swagger.annotations.ApiOperation;
@@ -10,6 +11,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
@@ -202,6 +204,57 @@ public class ExamController {
             return ResponseEntity.ok(Result.okGetStringByData("没有找到符合条件的考试", exams));
         } else {
             return ResponseEntity.ok(Result.okGetStringByData("搜索成功", exams));
+        }
+    }
+
+    @ApiOperation(value = "参加考试", notes = "将当前用户添加到某个考试的participantList中，并创建考试记录")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "成功参加考试"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 404, message = "考试或用户未找到")
+    })
+    @PostMapping("/joinExam")
+    public ResponseEntity<String> joinExam(
+            @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
+            HttpSession session) {
+
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        try {
+            examService.joinExam(examId, userId);
+            return ResponseEntity.ok(Result.okGetString("成功参加考试"));
+        } catch (DefaultException e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+        }
+    }
+
+    @ApiOperation(value = "添加用户到白名单", notes = "添加指定用户到考试的白名单")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "用户成功添加到白名单"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 403, message = "无管理员权限"),
+            @ApiResponse(code = 404, message = "考试或用户未找到")
+    })
+    @PostMapping("/addToWhitelist")
+    public ResponseEntity<String> addUserToWhitelist(
+            @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
+            @ApiParam(value = "用户ID", required = true) @RequestParam String userId,
+            HttpSession session) {
+
+        String userAuth = (String) session.getAttribute("authLevel");
+
+        if (!"2".equals(userAuth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Result.errorGetString("无管理员权限"));
+        }
+
+        try {
+            examService.addUserToWhitelist(examId, userId);
+            return ResponseEntity.ok(Result.okGetString("用户成功添加到白名单"));
+        } catch (DefaultException e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
         }
     }
 

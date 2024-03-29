@@ -176,6 +176,7 @@ public class QuestionService {
 
         // 更新或设置ExamRecord的得分
         examRecord.setScore((int)Math.round(totalScoreEarned));
+        examRecord.setStatus("已完成");
         examRecordRepository.save(examRecord);
     }
 
