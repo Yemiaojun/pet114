@@ -33,13 +33,6 @@ public class FacilityController {
     private FileStorageService fileStorageService;
 
 
-    /**
-     * 添加新的设备信息。
-     *
-     * @param facility 设备信息
-     * @param session HTTP 会话
-     * @return 添加成功后的设备信息
-     */
     @ApiOperation(value="添加设备", notes = "添加新的设备，需要管理员权限")
     @PostMapping("/addFacility")
     public ResponseEntity<String> addFacility(
@@ -70,13 +63,7 @@ public class FacilityController {
 
 
 
-    /**
-     * 删除设备信息。
-     *
-     * @param payload    请求体，其中包含设备id
-     * @param session HTTP 会话
-     * @return 删除成功后的设备信息
-     */
+
     @ApiOperation(value="删除设备", notes = "删除设备，需要管理员权限")
     @ApiImplicitParam(name = "id", value = "设备", required = true, dataType = "String", paramType = "query")
     @DeleteMapping("/deleteFacility")
@@ -109,13 +96,7 @@ public class FacilityController {
 
 
 
-    /**
-     * 更新设备信息。
-     *
-     * @param facility 要更新的设备信息
-     * @param session HTTP 会话
-     * @return 更新后的设备信息
-     */
+
     @ApiOperation(value = "更新设备信息", notes = "根据提供的设备信息更新设备，需要管理员权限")
     @ApiResponses({
             @ApiResponse(code = 200, message = "设备更新成功"),
@@ -142,13 +123,6 @@ public class FacilityController {
         }
     }
 
-    /**
-     * 根据设施名称模糊查找设施信息。
-     *
-     * @param name    设施名称
-     * @param session HTTP 会话
-     * @return 符合条件的设施列表的 ResponseEntity
-     */
     @ApiOperation(value = "根据设施名字模糊查找用户", notes = "返回符合条件的设施列表，需要管理员权限")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取设施信息成功"),
@@ -171,12 +145,7 @@ public class FacilityController {
     }
 
 
-    /**
-     * 获取所有设施信息。
-     *
-     * @param session HTTP 会话
-     * @return 所有设施列表的 ResponseEntity
-     */
+
     @ApiOperation(value = "获取所有设备", notes = "返回所有设备列表，需要管理员权限")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有设备信息成功"),
@@ -198,13 +167,6 @@ public class FacilityController {
 
 
 
-    /**
-     * 根据设备ID获取设备信息。
-     *
-     * @param id 设备ID
-     * @param session HTTP会话
-     * @return ResponseEntity 包含设备信息的响应实体
-     */
     @ApiOperation(value = "根据科室id获取设备", notes = "返回对应id，需要管理员权限")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有设备信息成功"),
