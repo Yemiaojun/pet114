@@ -19,6 +19,9 @@ public class FileStorageService {
     @Value("file/facilitypic/")
     private String facilityPicDir;
 
+    @Value("file/casepic/")
+    private String casePicDir;
+
     public String storeAvatar(MultipartFile file, String username) throws IOException {
         if (file.isEmpty()) {
             throw new IOException("Failed to store empty file.");
@@ -40,4 +43,30 @@ public class FileStorageService {
 
         return destinationPath.toString();
     }
+
+    //存储病例的图片
+    public String storeCasePic(MultipartFile file, String name) throws IOException {
+        if (file.isEmpty()) {
+            throw new IOException("Failed to store empty file.");
+        }
+
+        Path destinationPath = Paths.get(casePicDir + name + "_" + file.getOriginalFilename());
+        Files.copy(file.getInputStream(), destinationPath);
+
+        return destinationPath.toString();
+    }
+
+    //存储病例的视频
+    public String storeCaseVideo(MultipartFile file, String name) throws IOException {
+        if (file.isEmpty()) {
+            throw new IOException("Failed to store empty file.");
+        }
+
+        Path destinationPath = Paths.get(casePicDir + name + "_" + file.getOriginalFilename());
+        Files.copy(file.getInputStream(), destinationPath);
+
+        return destinationPath.toString();
+    }
+
+
 }

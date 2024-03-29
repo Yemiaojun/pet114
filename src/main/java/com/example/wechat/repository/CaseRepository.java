@@ -18,8 +18,17 @@ public interface CaseRepository extends MongoRepository<Case, ObjectId> {
     Optional<Case> findById(ObjectId id);
     Optional<Case> findByName(String name);
 
+    //查找所有病例
+    List<Case> findAll();
+
+
+
     //根据病例的描述模糊查找病例
     @Query("{'textList': {$regex: ?0, $options: 'i'}}")
-    List<User> findByTextListLike(String regex);
+    List<Case> findByTextListLike(String regex);
 
+
+    //根据疾病的id查询病例
+    @Query("{ 'disease.$id': ?0 }")
+    List<Case> findByDiseaseId(String diseaseId);
 }

@@ -53,23 +53,60 @@ public class CategoryService {
         }
     }
 
-    public void deleteCategory(ObjectId categoryId) {
-        // 确保存在一个"待定"的Category
-        Category pendingCategory = ensurePendingCategoryExists();
+    //删除类别的业务逻辑
+    public Optional<Category> deleteCategory(ObjectId id) {
+          Optional<Category> existingCategory = categoryRepository.findById(id);
 
-        // 更新引用了即将删除Category的Disease文档
-        diseaseRepository.findByCategoryId(categoryId).forEach(disease -> {
-            disease.setCategory(pendingCategory);
-            diseaseRepository.save(disease);
-        });
+          //对应名字的category不存在则报错
+          if (!existingCategory.isPresent()) {
+                // id不存在，返回空Optional作为错误指示
+                throw new DefaultException("对应类别不存在");
+          }
+          //查找该病类下的疾病和问题，如果有则更新为'待定'
+            Category pendingCategory = ensurePendingCategoryExists();
+            diseaseRepository.findByCategoryId(id).forEach
+                    (disease -> {
+                        disease.setCategory(pendingCategory);
+                        diseaseRepository.save(disease);
+                    });
+            questionRepository.findByCategoryId(id).forEach
+                    (question -> {
+                        question.setCategory(pendingCategory);
+                        questionRepository.save(question);
+                    });
 
-        // 更新引用了即将删除Category的Question文档
-        questionRepository.findByCategoryId(categoryId).forEach(question -> {
-            question.setCategory(pendingCategory);
-            questionRepository.save(question);
-        });
+          categoryRepository.delete(existingCategory.get());
+          return existingCategory;
+     }
 
-        // 删除指定的Category文档
-        categoryRepository.deleteById(categoryId);
+    // 更新类别的业务逻辑
+    public Optional<Category> updateCategory(Category updatedCategory) {
+        // 检查类别是否存在
+        Optional<Category> existingCategory = categoryRepository.findById(updatedCategory.getId());
+        if (!existingCategory.isPresent()) {
+            throw new DefaultException("类别不存在");
+        }
+
+        // 类别存在，执行更新操作
+        Category savedCategory = categoryRepository.save(updatedCategory);
+        return Optional.of(savedCategory);
     }
+
+    // 查找所有类别的业务逻辑
+    public Iterable<Category> getAllCategories() {
+        return categoryRepository.findAll();
+    }
+
+    // 根据类别名称查找类别的业务逻辑
+    public Optional<Category> getCategoryById(ObjectId id) {
+        return categoryRepository.findById(id);
+    }
+
+    // 根据类别名称模糊查找类别的业务逻辑
+    public Iterable<Category> getCategoriesByNameLike(String name) {
+        return categoryRepository.findByNameLike(name);
+    }
+
+
+
 }
