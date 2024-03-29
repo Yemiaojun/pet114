@@ -258,6 +258,34 @@ public class ExamController {
         }
     }
 
+    @ApiOperation(value = "从白名单中删除用户", notes = "从指定考试的白名单中移除指定用户")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "用户成功从白名单中移除"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 403, message = "无管理员权限"),
+            @ApiResponse(code = 404, message = "考试或用户未找到")
+    })
+    @PostMapping("/removeFromWhitelist")
+    public ResponseEntity<String> removeUserFromWhitelist(
+            @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
+            @ApiParam(value = "用户ID", required = true) @RequestParam String userId,
+            HttpSession session) {
+
+        String userAuth = (String) session.getAttribute("authLevel");
+
+        if (!"2".equals(userAuth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Result.errorGetString("无管理员权限"));
+        }
+
+        try {
+            examService.removeUserFromWhitelist(examId, userId);
+            return ResponseEntity.ok(Result.okGetString("用户成功从白名单中移除"));
+        } catch (DefaultException e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+        }
+    }
+
+
 
 
 

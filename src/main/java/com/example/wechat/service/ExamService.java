@@ -253,5 +253,23 @@ public class ExamService {
         }
     }
 
+    public void removeUserFromWhitelist(String examId, String userId) {
+        Optional<Exam> examOpt = examRepository.findById(new ObjectId(examId));
+        Optional<User> userOpt = userRepository.findById(new ObjectId(userId));
+
+        if (!examOpt.isPresent() || !userOpt.isPresent()) {
+            throw new DefaultException("考试或用户不存在");
+        }
+
+        Exam exam = examOpt.get();
+        User userToRemove = userOpt.get();
+
+        if (exam.getWhiteList().contains(userToRemove)) {
+            exam.getWhiteList().remove(userToRemove);
+            examRepository.save(exam);
+        }
+    }
+
+
 
 }
