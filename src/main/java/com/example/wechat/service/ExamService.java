@@ -33,6 +33,7 @@ public class ExamService {
         newExam.setEndTime(endTime);
         newExam.setScore(score);
         newExam.setPrivate(true);
+        newExam.setEveryone(false);
 
         // 当前时间判断
         Date now = new Date();
@@ -56,7 +57,7 @@ public class ExamService {
         return examRepository.save(newExam);
     }
 
-    public Exam holdPublicExam(String name, List<String> questionIds, List<String> whiteListUserIds, Date startTime, Date endTime, Integer score, String holderUserId) {
+    public Exam holdPublicExam(String name, List<String> questionIds, List<String> whiteListUserIds, Date startTime, Date endTime, Integer score, String holderUserId, boolean everyone) {
         Exam newExam = new Exam();
         newExam.setName(name);
         // 转换questionIds到Question的List，逻辑同前
@@ -65,6 +66,7 @@ public class ExamService {
         newExam.setEndTime(endTime);
         newExam.setScore(score);
         newExam.setPrivate(false);
+        newExam.setEveryone(everyone);
 
         Date now = new Date();
         if (now.before(startTime)) {

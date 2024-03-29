@@ -70,7 +70,10 @@ public class ExamController {
                 publicExamRequest.getStartTime(),
                 publicExamRequest.getEndTime(),
                 publicExamRequest.getScore(),
-                (String) session.getAttribute("userId"));
+                (String) session.getAttribute("userId"),
+                publicExamRequest.getEveryone()
+                );
+
 
         return ResponseEntity.ok(Result.okGetStringByData("公共比赛创建成功", createdExam));
     }
@@ -98,7 +101,7 @@ public class ExamController {
         }
     }
 
-    @ApiOperation(value = "获取考试列表", notes = "返回所有考试的列表，可根据状态进行过滤")
+    @ApiOperation(value = "获取考试列表", notes = "返回所有考试的列表，可根据状态进行过滤。状态为： 未开始 进行中 已过期 Deleted，如果没有指定，则默认返回所有非deleted的exam")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取考试列表成功"),
             @ApiResponse(code = 401, message = "用户未登录")

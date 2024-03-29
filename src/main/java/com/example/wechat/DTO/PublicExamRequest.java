@@ -27,4 +27,11 @@ public class PublicExamRequest {
 
     @ApiModelProperty(value = "分数", required = true, example = "100")
     private Integer score;
+
+    @ApiModelProperty(value = "是否所有人都可以参加", required = true, example = "true")
+    private boolean everyone;
+
+    public boolean getEveryone() {
+        return everyone;
+    }
 }

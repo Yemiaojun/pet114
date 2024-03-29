@@ -27,4 +27,5 @@ public class Exam {
     private String status;
     private Integer score;
     private boolean Private;
+    private boolean everyone;
 }
