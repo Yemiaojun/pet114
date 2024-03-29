@@ -75,7 +75,7 @@ public class ProcedureController {
      * @return 删除成功后的流程信息
      */
     @ApiOperation(value="删除流程", notes = "删除流程，需要管理员权限")
-    @ApiImplicitParam(name = "id", value = "流程", required = true, dataType = "String", paramType = "query")
+    @ApiImplicitParam(name = "id", value = "流程，不能为空", required = true, dataType = "String", paramType = "query" )
     @DeleteMapping("/deleteProcedure")
     public ResponseEntity<String> deleteProcedure(
             @RequestBody Map<String, String> payload,
@@ -159,11 +159,11 @@ public class ProcedureController {
     public ResponseEntity<String> findProceduresByRoleId(
             @ApiParam(name = "id", value = "角色id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
             HttpSession session) {
-        // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
+        // 检查用户登录
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
             // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
 
         List<Procedure> procedures = procedureService.findProcedureByRoleId(new ObjectId(id));
@@ -264,7 +264,4 @@ public class ProcedureController {
     }
 
 
-    public ResponseEntity<String> findProceduresByFacilityId(String id, HttpSession session) {
-        return null;
-    }
 }
