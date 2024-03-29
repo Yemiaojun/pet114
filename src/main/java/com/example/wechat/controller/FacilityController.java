@@ -1,11 +1,7 @@
 package com.example.wechat.controller;
 
-
 import com.example.wechat.exception.NameAlreadyExistedException;
-import com.example.wechat.model.Department;
 import com.example.wechat.model.Facility;
-import com.example.wechat.model.User;
-import com.example.wechat.service.DepartmentService;
 import com.example.wechat.service.FacilityService;
 import com.example.wechat.service.FileStorageService;
 import io.swagger.annotations.*;
@@ -21,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * 控制器类用于处理设备相关的请求和操作。
+ */
 @RestController
 @CrossOrigin
 @RequestMapping("/facility")
@@ -32,8 +31,14 @@ public class FacilityController {
     @Autowired
     private FileStorageService fileStorageService;
 
-
-    @ApiOperation(value="添加设备", notes = "添加新的设备，需要管理员权限")
+    /**
+     * 添加设备。
+     *
+     * @param facility 设备信息
+     * @param session  HTTP 会话
+     * @return 添加设备的响应实体
+     */
+    @ApiOperation(value = "添加设备", notes = "添加新的设备，需要管理员权限")
     @PostMapping("/addFacility")
     public ResponseEntity<String> addFacility(
             @ApiParam(value = "设备信息", required = true) @RequestBody Facility facility,
@@ -45,26 +50,26 @@ public class FacilityController {
 
         // 确认用户已登录且具有管理员权限
         if (userIdStr != null && "2".equals(userAuth)) {
-            try{
+            try {
                 Facility savedFacility = facilityService.addFacility(facility);
                 return ResponseEntity.ok(Result.okGetStringByData("设备添加成功", savedFacility));
-            }catch (NameAlreadyExistedException naee){
-
+            } catch (NameAlreadyExistedException naee) {
                 return ResponseEntity.badRequest().body(Result.errorGetString(naee.getMessage()));
-
             }
         } else {
             // 用户未登录或不具备管理员权限
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备添加权限"));
         }
-
     }
 
-
-
-
-
-    @ApiOperation(value="删除设备", notes = "删除设备，需要管理员权限")
+    /**
+     * 删除设备。
+     *
+     * @param payload 请求体信息，包含设备id
+     * @param session HTTP 会话
+     * @return 删除设备的响应实体
+     */
+    @ApiOperation(value = "删除设备", notes = "删除设备，需要管理员权限")
     @ApiImplicitParam(name = "id", value = "设备", required = true, dataType = "String", paramType = "query")
     @DeleteMapping("/deleteFacility")
     public ResponseEntity<String> deleteFacility(
@@ -75,15 +80,15 @@ public class FacilityController {
         String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
 
-        // 从请求体中获取部门id
+        // 从请求体中获取设备id
         String id = payload.get("id");
 
         // 确认用户已登录且具有管理员权限
         if (userIdStr != null && "2".equals(userAuth)) {
-            try{
+            try {
                 Optional<Facility> optionalFacility = facilityService.deleteFacilityById(new ObjectId(id));
-                return ResponseEntity.ok(Result.okGetStringByData("科室删除成功",optionalFacility));
-            }catch (Exception e){
+                return ResponseEntity.ok(Result.okGetStringByData("科室删除成功", optionalFacility));
+            } catch (Exception e) {
                 return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
             }
 
@@ -93,10 +98,13 @@ public class FacilityController {
         }
     }
 
-
-
-
-
+    /**
+     * 更新设备信息。
+     *
+     * @param facility 设备信息
+     * @param session  HTTP 会话
+     * @return 更新后的设备信息
+     */
     @ApiOperation(value = "更新设备信息", notes = "根据提供的设备信息更新设备，需要管理员权限")
     @ApiResponses({
             @ApiResponse(code = 200, message = "设备更新成功"),
@@ -108,13 +116,14 @@ public class FacilityController {
 
         // 确认用户已登录且具有管理员权限
         if ("2".equals(userAuth)) {
-            try{
+            try {
                 Optional<Facility> updatedFacility = facilityService.updateFacility(facility);
                 if (updatedFacility.isPresent()) {
                     return ResponseEntity.ok(Result.okGetStringByData("设备更新成功", updatedFacility.get()));
                 } else {
                     return ResponseEntity.badRequest().body(Result.errorGetString("设备更新失败，设备不存在"));
-                }}catch (Exception e){
+                }
+            } catch (Exception e) {
                 return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
             }
         } else {
@@ -123,6 +132,13 @@ public class FacilityController {
         }
     }
 
+    /**
+     * 根据设施名字模糊查找用户。
+     *
+     * @param name    设备名称
+     * @param session HTTP 会话
+     * @return 符合条件的设施列表的响应实体
+     */
     @ApiOperation(value = "根据设施名字模糊查找用户", notes = "返回符合条件的设施列表，需要登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取设施信息成功"),
@@ -144,8 +160,12 @@ public class FacilityController {
         return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facilities));
     }
 
-
-
+    /**
+     * 获取所有设备。
+     *
+     * @param session HTTP 会话
+     * @return 所有设备列表的响应实体
+     */
     @ApiOperation(value = "获取所有设备", notes = "返回所有设备列表，需要登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有设备信息成功"),
@@ -164,10 +184,14 @@ public class FacilityController {
         return ResponseEntity.ok(Result.okGetStringByData("获取所有设备信息成功", facilities));
     }
 
-
-
-
-    @ApiOperation(value = "根据科室id获取设备", notes = "返回对应id，需要用户登录")
+    /**
+     * 根据设施id获取设备。
+     *
+     * @param id      设备id
+     * @param session HTTP 会话
+     * @return 设备信息的响应实体
+     */
+    @ApiOperation(value = "根据设施id获取设备", notes = "返回对应id，需要用户登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有设备信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
@@ -187,12 +211,11 @@ public class FacilityController {
         return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facility));
     }
 
-    
     /**
      * 上传设备图像。
      *
-     * @param file 设施图像文件
-     * @param id 设施id
+     * @param file    设施图像文件
+     * @param id      设施id
      * @param session HTTP 会话
      * @return 包含图片更新结果的 ResponseEntity
      */
@@ -223,7 +246,4 @@ public class FacilityController {
             return ResponseEntity.badRequest().body(Result.errorGetString("图片更新失败: " + e.getMessage()));
         }
     }
-
-
-
 }

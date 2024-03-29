@@ -43,7 +43,7 @@ public class RoleControllerTests {
 
         // 构造请求体
         Map<String, String> payload = new HashMap<>();
-        payload.put("id", "some_id");
+        payload.put("id", "5fc73dfac116601124123456");
 
         ResponseEntity<String> responseEntity = roleController.deleteRole(payload, session);
 
@@ -159,7 +159,7 @@ public class RoleControllerTests {
     @Test
     public void testFindAllRolesSuccess() {
         // 模拟会话中有管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("2");
+        when(session.getAttribute("userId")).thenReturn("2");
 
         // 模拟RoleService的findAllRoles方法成功
         List<Role> roles = new ArrayList<>();
@@ -191,13 +191,13 @@ public class RoleControllerTests {
     @Test
     public void testFindRoleByIdSuccess() {
         // 模拟会话中有管理员权限
-        when(session.getAttribute("authLevel")).thenReturn("2");
+        when(session.getAttribute("userId")).thenReturn("2");
 
         // 模拟RoleService的findRoleById方法成功
         Role role = new Role();
         when(roleService.findRoleById(any(ObjectId.class))).thenReturn(Optional.of(role));
 
-        ResponseEntity<String> responseEntity = roleController.findRoleById("some_id", session);
+        ResponseEntity<String> responseEntity = roleController.findRoleById("5fc73dfac116601124123456", session);
 
         // 验证返回结果是否符合预期
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
