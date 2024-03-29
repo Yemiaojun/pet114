@@ -29,6 +29,9 @@ public class QuestionService {
     @Autowired
     private ExamRepository examRepository;
 
+    @Autowired
+    private ExamRecordRepository examRecordRepository;
+
     public Question addQuestion(Question question) {
         question.setVisible(true);
         return questionRepository.save(question);
@@ -128,11 +131,27 @@ public class QuestionService {
         if (!userOpt.isPresent() || !examOpt.isPresent()) {
             // 这里可以抛出一个自定义的异常或者处理用户和考试不存在的情况
             throw new DefaultException("考试不存在");
-
         }
 
         User user = userOpt.get();
         Exam exam = examOpt.get();
+
+        // 尝试找到现有的ExamRecord
+
+        Optional<ExamRecord> existingRecordOpt = examRecordRepository.findByUserAndExam(user.getId(), exam.getId());
+
+        ExamRecord examRecord;
+        if (existingRecordOpt.isPresent()) {
+            examRecord = existingRecordOpt.get();
+        } else {
+            examRecord = new ExamRecord();
+            examRecord.setExam(exam);
+            examRecord.setUser(user);
+            examRecord.setScore(0); // 初始化得分为0
+        }
+
+        double totalScoreEarned = 0;
+        int totalExamScore = exam.getScore();
 
         for (int i = 0; i < questionList.size(); i++) {
             Question question = questionList.get(i);
@@ -145,10 +164,21 @@ public class QuestionService {
             record.setUser(user); // 使用查询得到的User实例
             record.setExam(exam); // 使用查询得到的Exam实例
             record.setTime(new Date());
-
             questionRecordRepository.save(record);
+
+            // 更新得分
+            if (record.getTorF()) {
+                double questionScoreRatio = (double)question.getScore() / totalExamScore;
+                double scoreForThisQuestion = questionScoreRatio * exam.getScore();
+                totalScoreEarned += scoreForThisQuestion;
+            }
         }
+
+        // 更新或设置ExamRecord的得分
+        examRecord.setScore((int)Math.round(totalScoreEarned));
+        examRecordRepository.save(examRecord);
     }
+
 
 
 }

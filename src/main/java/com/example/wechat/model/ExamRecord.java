@@ -15,6 +15,5 @@ public class ExamRecord {
     private Exam exam;
     @DBRef
     private User user;
-    private String status;
     private Integer score;
 }

@@ -14,5 +14,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatus()).body(Result.errorGetString(ex.getMessage()));
     }
 
-    // 其他异常处理...
 }
