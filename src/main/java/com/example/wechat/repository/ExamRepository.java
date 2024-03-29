@@ -16,4 +16,11 @@ public interface ExamRepository extends MongoRepository<Exam, ObjectId> {
     @Query("{'status': {$ne: ?0}}")
     List<Exam> findByStatusNot(String status);
 
+    @Query("{'name': {$regex: ?0, $options: 'i'}}")
+    List<Exam> findByNameLike(String name);
+
+    // 复杂查询，考虑状态、私有性和可参与性
+    @Query(value = "{'name': {$regex: ?0, $options: 'i'}, 'status': {$ne: 'Deleted'}, $or: [ {'Private': false}, {'holder.$id': ?1}, {'everyone': true}, {'whiteList.$id': ?1} ]}", exists = true)
+    List<Exam> searchExamsWithCriteria(String name, ObjectId userId, String status, Boolean Private, Boolean everyone);
 }
+

@@ -8,6 +8,11 @@ import com.example.wechat.repository.QuestionRepository;
 import com.example.wechat.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,6 +28,11 @@ public class ExamService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final MongoTemplate mongoTemplate;
+    public ExamService(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     public Exam holdPrivateExam(String name, List<String> questionIds, Date startTime, Date endTime, Integer score, String userId) {
         Exam newExam = new Exam();
@@ -131,6 +141,41 @@ public class ExamService {
             return Optional.of(exam);
         }
         return Optional.empty();
+    }
+
+    public List<Exam> searchExams(String name, ObjectId userId, String status, Boolean Private, Boolean participatable) {
+        Query query = new Query();
+
+        // 名称模糊搜索
+        if (name != null && !name.isEmpty()) {
+            query.addCriteria(Criteria.where("name").regex(name, "i"));
+        }
+
+        // 状态筛选
+        if (status != null) {
+            query.addCriteria(Criteria.where("status").is(status));
+        } else {
+            query.addCriteria(Criteria.where("status").ne("Deleted"));
+        }
+
+        // 私有性筛选
+        if (Private != null) {
+            query.addCriteria(Criteria.where("Private").is(Private));
+
+            if (Private) {
+                query.addCriteria(Criteria.where("holder.$id").is(userId));
+            }
+        }
+
+        // 可参与性筛选
+        if (participatable != null && participatable) {
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("everyone").is(true),
+                    Criteria.where("whiteList.$id").is(userId)
+            ));
+        }
+
+        return mongoTemplate.find(query, Exam.class);
     }
 
 }

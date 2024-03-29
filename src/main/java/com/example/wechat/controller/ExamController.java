@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -148,6 +149,32 @@ public class ExamController {
             return ResponseEntity.ok(Result.okGetStringByData("考试状态更新成功", examOpt.get()));
         } else {
             return ResponseEntity.status(404).body(Result.errorGetString("考试未找到"));
+        }
+    }
+
+    @ApiOperation(value = "模糊搜索考试", notes = "用户（非管理员）根据考试名进行模糊搜索，并可根据考试的公私性、状态及可参与性进行筛选。")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "搜索成功"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @GetMapping("/search")
+    public ResponseEntity<String> searchExams(
+            @ApiParam(value = "考试名称", required = true) @RequestParam String name,
+            @ApiParam(value = "考试状态", required = false) @RequestParam(required = false) String status,
+            @ApiParam(value = "是否为私人考试", required = false) @RequestParam(required = false) Boolean Private,
+            @ApiParam(value = "是否可参与", required = false) @RequestParam(required = false) Boolean participatable,
+            HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
+        if (userIdStr == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+        ObjectId userId = new ObjectId(userIdStr);
+
+        List<Exam> exams = examService.searchExams(name, userId, status, Private, participatable);
+        if (exams.isEmpty()) {
+            return ResponseEntity.ok(Result.okGetStringByData("没有找到符合条件的考试", exams));
+        } else {
+            return ResponseEntity.ok(Result.okGetStringByData("搜索成功", exams));
         }
     }
 
