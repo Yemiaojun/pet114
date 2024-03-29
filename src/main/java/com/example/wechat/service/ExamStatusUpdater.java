@@ -19,7 +19,7 @@ public class ExamStatusUpdater {
         List<Exam> exams = examRepository.findAll();
         Date now = new Date();
         exams.forEach(exam -> {
-            if (!"被中止".equals(exam.getStatus())) {
+            if (!"Deleted".equals(exam.getStatus())) {
                 if (exam.getStartTime().after(now)) {
                     // 当前时间未到开始时间
                     exam.setStatus("未开始");

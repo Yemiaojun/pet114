@@ -107,4 +107,28 @@ public class ExamService {
         }
         return users;
     }
+
+    public Optional<Exam> findExamById(String id) {
+        return examRepository.findById(new ObjectId(id));
+    }
+
+    public List<Exam> getExamsByOptionalStatus(String status) {
+        if (status == null || status.isEmpty()) {
+            return examRepository.findByStatusNot("Deleted");
+        } else {
+            return examRepository.findByStatus(status);
+        }
+    }
+
+    public Optional<Exam> setExamStatusToDeleted(String examId) {
+        Optional<Exam> examOpt = examRepository.findById(new ObjectId(examId));
+        if (examOpt.isPresent()) {
+            Exam exam = examOpt.get();
+            exam.setStatus("Deleted");
+            examRepository.save(exam);
+            return Optional.of(exam);
+        }
+        return Optional.empty();
+    }
+
 }
