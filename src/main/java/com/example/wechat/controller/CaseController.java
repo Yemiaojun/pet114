@@ -184,14 +184,10 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                String picUrl = fileStorageService.storeCasePic(file, file.getName());
-                caseService.uploadCaseImageUrlToLast(id, picUrl);
-                return ResponseEntity.ok(Result.okGetString("上传病例图片成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("上传病例图片失败"));
-            }
+            ObjectId id = new ObjectId(caseId);
+            String picUrl = fileStorageService.storeCasePic(file, file.getName());
+            caseService.uploadCaseImageUrlToLast(id, picUrl);
+            return ResponseEntity.ok(Result.okGetString("上传病例图片成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
@@ -210,14 +206,10 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                String picUrl = fileStorageService.storeCasePic(file, file.getName());
-                caseService.uploadCaseImageUrlToIndex(id, picUrl, index);
-                return ResponseEntity.ok(Result.okGetString("上传病例图片成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("上传病例图片失败"));
-            }
+            ObjectId id = new ObjectId(caseId);
+            String picUrl = fileStorageService.storeCasePic(file, file.getName());
+            caseService.uploadCaseImageUrlToIndex(id, picUrl, index);
+            return ResponseEntity.ok(Result.okGetString("上传病例图片成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
@@ -235,16 +227,12 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                for (MultipartFile file : files) {
-                    String picUrl = fileStorageService.storeCasePic(file, file.getName());
-                    caseService.uploadCaseImageUrlToLast(id, picUrl);
-                }
-                return ResponseEntity.ok(Result.okGetString("批量上传病例图片成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("批量上传病例图片失败"));
+            ObjectId id = new ObjectId(caseId);
+            for (MultipartFile file : files) {
+                String picUrl = fileStorageService.storeCasePic(file, file.getName());
+                caseService.uploadCaseImageUrlToLast(id, picUrl);
             }
+            return ResponseEntity.ok(Result.okGetString("批量上传病例图片成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
@@ -263,17 +251,13 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                for (MultipartFile file : files) {
-                    String picUrl = fileStorageService.storeCasePic(file, file.getName());
-                    caseService.uploadCaseImageUrlToIndex(id, picUrl, index);
-                    index++;
-                }
-                return ResponseEntity.ok(Result.okGetString("批量上传病例图片成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("批量上传病例图片失败"));
+            ObjectId id = new ObjectId(caseId);
+            for (MultipartFile file : files) {
+                String picUrl = fileStorageService.storeCasePic(file, file.getName());
+                caseService.uploadCaseImageUrlToIndex(id, picUrl, index);
+                index++;
             }
+            return ResponseEntity.ok(Result.okGetString("批量上传病例图片成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
@@ -315,14 +299,10 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
-                caseService.uploadCaseVideoUrlToLast(id, videoUrl);
-                return ResponseEntity.ok(Result.okGetString("上传病例视频成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("上传病例视频失败"));
-            }
+            ObjectId id = new ObjectId(caseId);
+            String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
+            caseService.uploadCaseVideoUrlToLast(id, videoUrl);
+            return ResponseEntity.ok(Result.okGetString("上传病例视频成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
@@ -341,14 +321,10 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
-                caseService.uploadCaseVideoUrlToIndex(id, videoUrl, index);
-                return ResponseEntity.ok(Result.okGetString("上传病例视频成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("上传病例视频失败"));
-            }
+            ObjectId id = new ObjectId(caseId);
+            String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
+            caseService.uploadCaseVideoUrlToIndex(id, videoUrl, index);
+            return ResponseEntity.ok(Result.okGetString("上传病例视频成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
@@ -366,16 +342,12 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                for (MultipartFile file : files) {
-                    String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
-                    caseService.uploadCaseVideoUrlToLast(id, videoUrl);
-                }
-                return ResponseEntity.ok(Result.okGetString("批量上传病例视频成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("批量上传病例视频失败"));
+            ObjectId id = new ObjectId(caseId);
+            for (MultipartFile file : files) {
+                String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
+                caseService.uploadCaseVideoUrlToLast(id, videoUrl);
             }
+            return ResponseEntity.ok(Result.okGetString("批量上传病例视频成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
@@ -394,17 +366,13 @@ public class CaseController {
         String userIdStr = (String) session.getAttribute("userId");
         // 确认用户已登录
         if (userIdStr != null) {
-            try {
-                ObjectId id = new ObjectId(caseId);
-                for (MultipartFile file : files) {
-                    String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
-                    caseService.uploadCaseVideoUrlToIndex(id, videoUrl, index);
-                    index++;
-                }
-                return ResponseEntity.ok(Result.okGetString("批量上传病例视频成功"));
-            } catch (IOException ioe) {
-                return ResponseEntity.badRequest().body(Result.errorGetString("批量上传病例视频失败"));
+            ObjectId id = new ObjectId(caseId);
+            for (MultipartFile file : files) {
+                String videoUrl = fileStorageService.storeCaseVideo(file, file.getName());
+                caseService.uploadCaseVideoUrlToIndex(id, videoUrl, index);
+                index++;
             }
+            return ResponseEntity.ok(Result.okGetString("批量上传病例视频成功"));
         } else {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
