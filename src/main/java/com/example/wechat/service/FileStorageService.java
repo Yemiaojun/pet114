@@ -127,6 +127,57 @@ public class FileStorageService {
     }
 
 
+    public String storeCasePic(MultipartFile file, String name) {
+        if (file.isEmpty()) {
+            throw new RuntimeException("Failed to store empty file.");
+        }
 
+        Path destinationPath = Paths.get("file/casepic/" + name + "_" + file.getOriginalFilename());
+        try {
+            Files.copy(file.getInputStream(), destinationPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file.", e);
+        }
 
+        return destinationPath.toString();
+    }
+
+    public void deleteCasePic(String caseName, String fileName) {
+        Path destinationPath = Paths.get("file/casepic/" + caseName + "_" + fileName);
+        try {
+            Files.delete(destinationPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete file.", e);
+        }
+    }
+
+    public String storeDrugPic(MultipartFile file, String name) {
+        if (file.isEmpty()) {
+            throw new RuntimeException("Failed to store empty file.");
+        }
+
+        Path destinationPath = Paths.get("file/drugpic/" + name + "_" + file.getOriginalFilename());
+        try {
+            Files.copy(file.getInputStream(), destinationPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file.", e);
+        }
+
+        return destinationPath.toString();
+    }
+
+    public String storeCaseVideo(MultipartFile file, String name) {
+        if (file.isEmpty()) {
+            throw new RuntimeException("Failed to store empty file.");
+        }
+
+        Path destinationPath = Paths.get("file/casevideo/" + name + "_" + file.getOriginalFilename());
+        try {
+            Files.copy(file.getInputStream(), destinationPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file.", e);
+        }
+
+        return destinationPath.toString();
+    }
 }
