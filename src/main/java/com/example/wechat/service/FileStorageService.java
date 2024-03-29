@@ -24,6 +24,10 @@ public class FileStorageService {
 
     @Value("file/procedurevid")
     private String procedureVidDir;
+
+
+    @Value("file/drugpic/")
+    private String drugPicDir;
     public String storeAvatar(MultipartFile file, String username) throws IOException {
         if (file.isEmpty()) {
             throw new IOException("Failed to store empty file.");
@@ -124,6 +128,26 @@ public class FileStorageService {
         } else {
             throw new IOException("要删除的图片不存在");
         }
+    }
+
+
+    /**
+     * 存储药品图片到指定目录，并返回存储的文件路径。
+     *
+     * @param file 要存储的图片文件
+     * @param name 存储文件的名称前缀
+     * @return 存储的文件路径
+     * @throws IOException 如果存储失败或文件为空，则抛出 IOException
+     */
+    public String storeDrugPic(MultipartFile file, String name) throws IOException {
+        if (file.isEmpty()) {
+            throw new IOException("Failed to store empty file.");
+        }
+
+        Path destinationPath = Paths.get(drugPicDir + name + "_" + file.getOriginalFilename());
+        Files.copy(file.getInputStream(), destinationPath);
+
+        return destinationPath.toString();
     }
 
 
