@@ -141,20 +141,20 @@ public class DepartmentController {
      * @param session HTTP 会话
      * @return 符合条件的科室列表的 ResponseEntity
      */
-    @ApiOperation(value = "根据科室名字模糊查找用户", notes = "返回符合条件的科室列表，需要管理员权限")
+    @ApiOperation(value = "根据科室名字模糊查找用户", notes = "返回符合条件的科室列表，需要用户登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取科室信息成功"),
-            @ApiResponse(code = 400, message = "用户未登录或不具备更新权限")
+            @ApiResponse(code = 400, message = "用户未登录")
     })
     @GetMapping("/searchDepartmentsByName")
     public ResponseEntity<String> findDepartmentsByName(
             @ApiParam(name = "name", value = "科室名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {
-        // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
-            // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查找权限"));
+        // 检查用户登录
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            // 用户未登录
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
 
         List<Department> departments = departmentService.findDepartmentsByNameLike(name);
@@ -169,18 +169,18 @@ public class DepartmentController {
      * @param session HTTP 会话
      * @return 所有部门列表的 ResponseEntity
      */
-    @ApiOperation(value = "获取所有科室", notes = "返回所有科室列表，需要管理员权限")
+    @ApiOperation(value = "获取所有科室", notes = "返回所有科室列表，需要用户登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有科室信息成功"),
-            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+            @ApiResponse(code = 400, message = "用户未登录")
     })
     @GetMapping("/findAllDepartments")
     public ResponseEntity<String> findAllDepartments(HttpSession session) {
-        // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
-            // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+        // 检查用户登录
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            // 用户未登录
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
 
         List<Department> departments = departmentService.findAllDepartments();
@@ -191,7 +191,7 @@ public class DepartmentController {
 
 
     /**
-     * 根据设备ID获取部门信息。
+     * 根据部门ID获取部门信息。
      *
      * @param id 部门ID
      * @param session HTTP会话
@@ -199,22 +199,24 @@ public class DepartmentController {
      */
     @ApiOperation(value = "根据部门id获取部门", notes = "返回对应部门，需要管理员权限")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "获取所有设备信息成功"),
+            @ApiResponse(code = 200, message = "获取部门信息成功"),
             @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
     })
     @GetMapping("/findDepartmentById")
     public ResponseEntity<String> findDepartmentById(
             @ApiParam(name = "id", value = "部门id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
             HttpSession session) {
-        // 检查用户权限
-        String userAuth = (String) session.getAttribute("authLevel");
-        if (!"2".equals(userAuth)) {
+        // 检查用户登录
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
             // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
 
         Optional<Department> department = departmentService.findDepartmentById(new ObjectId(id));
         return ResponseEntity.ok(Result.okGetStringByData("获取部门信息成功", department));
     }
+
+
 
 }
