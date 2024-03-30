@@ -6,6 +6,8 @@ import com.example.wechat.model.User;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface ExamRecordRepository extends MongoRepository<ExamRecord, ObjectId> {
@@ -16,4 +18,7 @@ public interface ExamRecordRepository extends MongoRepository<ExamRecord, Object
 
     // 或者如果你直接在ExamRecord中存储User和Exam的ID，可以更简单地定义方法
     // Optional<ExamRecord> findByUserIdAndExamId(String userId, String examId);
+
+    @Query("{'exam.$id': ?0}")
+    List<ExamRecord> findByExamId(ObjectId examId);
 }

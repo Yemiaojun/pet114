@@ -20,5 +20,5 @@ public class Procedure {
     private Role role;
 
     //pirvate Interger step;
-    //缺了一个量，忘写了，因为要和role连在一起。ss
+    //缺了一个量，忘写了，因为要和role连在一起。
 }
