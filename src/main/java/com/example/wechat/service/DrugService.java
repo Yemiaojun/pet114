@@ -1,7 +1,9 @@
 package com.example.wechat.service;
 
+import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
+import com.example.wechat.format.NameChecker;
 import com.example.wechat.model.Drug;
 import com.example.wechat.model.Facility;
 import com.example.wechat.repository.DrugRepository;
@@ -24,14 +26,19 @@ public class DrugService {
      * @param drug 要添加的药品对象
      * @return 添加成功后的药品对象
      * @throws NameAlreadyExistedException 如果药品名已经存在，则抛出 NameAlreadyExistedException 异常
+     * @throws DefaultException 如果药品名字不合法，则抛出DefaultException异常
      */
-    public Drug addDrug(Drug drug) throws NameAlreadyExistedException {
+    public Drug addDrug(Drug drug) throws NameAlreadyExistedException, DefaultException {
         Optional<Drug> existedDrug = drugRepository.findDrugByName(drug.getName());
 
         //对应名字的drug存在则报错
         if(existedDrug.isPresent()){
             throw new NameAlreadyExistedException("名字已存在");
         }
+
+        //检查名字的合法性，如果不正确则抛出错误
+        NameChecker.nameIsLegal(drug.getName());
+
         Drug savedDrug = drugRepository.save(drug);
         return savedDrug;
     }
@@ -68,8 +75,9 @@ public class DrugService {
      * @return 更新成功后返回更新后的药品对象的 Optional，如果找不到对应 ID 的药品则返回空 Optional
      * @throws NameAlreadyExistedException 如果药品名已经存在，则抛出 NameAlreadyExistedException 异常
      * @throws IdNotFoundException 如果药品id不存在，则抛出IdNotFoundException
+     * @throws DefaultException 如果药品名字不合法，则抛出DefaultException异常
      */
-    public Optional<Drug> updateDrug(Drug drug) throws NameAlreadyExistedException, IdNotFoundException {
+    public Optional<Drug> updateDrug(Drug drug) throws NameAlreadyExistedException, IdNotFoundException,DefaultException {
         Optional<Drug> drugOriginal = drugRepository.findById(drug.getId());
         if(drugOriginal.isPresent()){
             Drug drugEntity = drugOriginal.get();
@@ -82,6 +90,9 @@ public class DrugService {
                 if(existedDrug.isPresent()){
                     throw new NameAlreadyExistedException("当前药品已存在");
                 }
+
+                //检查名字的合法性，如果不正确则抛出错误
+                NameChecker.nameIsLegal(drug.getName());
             }
 
             return Optional.of(drugRepository.save(drug));

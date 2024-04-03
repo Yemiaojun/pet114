@@ -4,6 +4,7 @@ import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.exception.NameNotFoundException;
+import com.example.wechat.format.NameChecker;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
 import com.example.wechat.model.Facility;
@@ -32,14 +33,19 @@ public class FacilityService {
      * @param facility 要添加的设备对象
      * @return 添加成功后的设备对象
      * @throws NameAlreadyExistedException 如果设备名已经存在，则抛出 NameAlreadyExistedException 异常
+     * @throws DefaultException 如果设备名字不合法，则抛出 DefaultException 异常
      */
-    public Facility addFacility(Facility facility) throws NameAlreadyExistedException {
+    public Facility addFacility(Facility facility) throws NameAlreadyExistedException,DefaultException {
         Optional<Facility> existedFacility = facilityRepository.findFacilityByName(facility.getName());
 
         //对应名字的facility存在则报错
         if(existedFacility.isPresent()){
             throw new NameAlreadyExistedException("名字已存在");
         }
+
+        //检查名字的合法性，如果不正确则抛出错误
+        NameChecker.nameIsLegal(facility.getName());
+
         Facility savedFacility = facilityRepository.save(facility);
         return savedFacility;
     }
@@ -72,8 +78,9 @@ public class FacilityService {
      * @return 更新成功后返回更新后的设备对象的 Optional，如果找不到对应 ID 的设备则返回空 Optional
      * @throws NameAlreadyExistedException 如果设备名已经存在，则抛出 NameAlreadyExistedException 异常
      * @throws IdNotFoundException 如果设备id不存在，则抛出IdNotFoundException
+     * @throws DefaultException 设备名字不合法，则抛出DefaultException
      */
-    public Optional<Facility> updateFacility(Facility facility) throws NameAlreadyExistedException, IdNotFoundException {
+    public Optional<Facility> updateFacility(Facility facility) throws NameAlreadyExistedException, IdNotFoundException, DefaultException {
         Optional<Facility> facilityOriginal = facilityRepository.findById(facility.getId());
         if(facilityOriginal.isPresent()){
             Facility facilityEntity = facilityOriginal.get();
@@ -86,6 +93,9 @@ public class FacilityService {
                 if(existedFacility.isPresent()){
                     throw new NameAlreadyExistedException("当前设备已存在");
                 }
+
+                //检查名字的合法性，如果不正确则抛出错误
+                NameChecker.nameIsLegal(facility.getName());
             }
 
             return Optional.of(facilityRepository.save(facility));

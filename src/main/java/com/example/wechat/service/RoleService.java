@@ -4,6 +4,7 @@ package com.example.wechat.service;
 import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
+import com.example.wechat.format.NameChecker;
 import com.example.wechat.model.Category;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Facility;
@@ -29,6 +30,7 @@ public class RoleService {
      * @param role 要添加的角色对象
      * @return 添加成功后的角色对象
      * @throws NameAlreadyExistedException 如果角色名已经存在，则抛出 NameAlreadyExistedException 异常
+     * @throws DefaultException 如果角色名字不合法，则抛出DefaultException 异常
      */
     public Role addRole(Role role) throws NameAlreadyExistedException {
         Optional<Role> existedRole = roleRepository.findRoleByName(role.getName());
@@ -37,6 +39,10 @@ public class RoleService {
         if(existedRole.isPresent()){
             throw new NameAlreadyExistedException("角色名字已存在");
         }
+
+        //检查名字的合法性，如果不正确则抛出错误
+        NameChecker.nameIsLegal(role.getName());
+
         Role savedRole = roleRepository.save(role);
         return savedRole;
     }
@@ -68,8 +74,9 @@ public class RoleService {
      * @return 更新成功后返回更新后的角色对象的 Optional，如果找不到对应 ID 的角色则返回空 Optional
      * @throws NameAlreadyExistedException 如果角色名已经存在，则抛出 NameAlreadyExistedException 异常
      * @throws IdNotFoundException 如果角色id不存在，则抛出IdNotFoundException
+     * @throws DefaultException 如果角色名字不合法，则抛出DefaultException
      */
-    public Optional<Role> updateRole(Role role) throws NameAlreadyExistedException, IdNotFoundException {
+    public Optional<Role> updateRole(Role role) throws NameAlreadyExistedException, IdNotFoundException, DefaultException {
         Optional<Role> roleOriginal = roleRepository.findById(role.getId());
         if(roleOriginal.isPresent()){
             Role roleEntity = roleOriginal.get();
@@ -82,6 +89,9 @@ public class RoleService {
                 if(existedRole.isPresent()){
                     throw new NameAlreadyExistedException("当前角色已存在");
                 }
+
+                //检查名字的合法性，如果不正确则抛出错误
+                NameChecker.nameIsLegal(role.getName());
             }
 
             return Optional.of(roleRepository.save(role));
