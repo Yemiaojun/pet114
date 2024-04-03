@@ -79,7 +79,7 @@ public class DiseaseController {
      */
     @ApiOperation(value="删除疾病", notes = "删除疾病，需要管理员权限")
     @ApiImplicitParam(name = "id", value = "部门", required = true, dataType = "String", paramType = "query")
-    @PostMapping("/deleteDisease")
+    @DeleteMapping("/deleteDisease")
     public ResponseEntity<String> deleteDisease(
             @RequestBody Map<String, String> payload,
             HttpSession session) {
