@@ -1,12 +1,19 @@
 package com.example.wechat.service;
 
 import com.example.wechat.exception.DefaultException;
+import com.example.wechat.model.Exam;
+import com.example.wechat.model.ExamRecord;
+import com.example.wechat.model.QuestionRecord;
 import com.example.wechat.model.User;
+import com.example.wechat.repository.ExamRecordRepository;
+import com.example.wechat.repository.ExamRepository;
+import com.example.wechat.repository.QuestionRecordRepository;
 import com.example.wechat.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +23,15 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private QuestionRecordRepository questionRecordRepository;
+
+    @Autowired
+    private ExamRecordRepository examRecordRepository;
+
+    @Autowired
+    private ExamRepository examRepository;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Optional<User> addUser(User user) {
@@ -149,6 +165,33 @@ public class UserService {
         }
         else throw new DefaultException("错误的userID");
 
+    }
+
+    @Transactional
+    public void deleteUserById(String userId) {
+        ObjectId userObjId = new ObjectId(userId);
+
+        // 删除用户的所有问题记录
+        List<QuestionRecord> questionRecords = questionRecordRepository.findByUserId(userObjId);
+        questionRecordRepository.deleteAll(questionRecords);
+
+        // 删除用户的所有考试记录
+        List<ExamRecord> examRecords = examRecordRepository.findByUserId(userObjId);
+        examRecordRepository.deleteAll(examRecords);
+
+        // 更新考试中的用户引用
+        List<Exam> exams = examRepository.findAll();
+        exams.forEach(exam -> {
+            if(exam.getHolder() != null && exam.getHolder().getId().equals(userObjId)) {
+                exam.setHolder(null); // 如果用户是考试的持有者
+            }
+            exam.getParticipantList().removeIf(user -> user.getId().equals(userObjId)); // 移除参与者列表中的用户
+            exam.getWhiteList().removeIf(user -> user.getId().equals(userObjId)); // 移除白名单列表中的用户
+            examRepository.save(exam);
+        });
+
+        // 最后删除用户本身
+        userRepository.deleteById(userObjId);
     }
 
 
