@@ -96,13 +96,13 @@ public class DiseaseController {
             try{
             Optional<Disease> dd = diseaseService.deleteDiseaseById(new ObjectId(id));
             return ResponseEntity.ok(Result.okGetStringByData("疾病删除成功",dd));
-            }catch (DefaultException de){
+            }catch (Exception de){
                 return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));
             }
 
         } else {
             // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备添加权限"));
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备删除权限"));
         }
     }
 
