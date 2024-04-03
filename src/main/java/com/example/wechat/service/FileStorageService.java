@@ -63,12 +63,12 @@ public class FileStorageService {
      * @return 存储的文件路径
      * @throws IOException 如果存储失败或文件为空，则抛出 IOException
      */
-    public String storeProcedurePic(MultipartFile file, ObjectId id) throws IOException {
+    public String storeProcedurePic(MultipartFile file, String id) throws IOException {
         if (file.isEmpty()) {
             throw new IOException("Failed to store empty file.");
         }
 
-        Path destinationPath = Paths.get(procedurePicDir + id.toString() + "_" + file.getOriginalFilename());
+        Path destinationPath = Paths.get(procedurePicDir + id + "_" + file.getOriginalFilename());
         Files.copy(file.getInputStream(), destinationPath);
 
         return destinationPath.toString();
@@ -82,12 +82,12 @@ public class FileStorageService {
      * @return 存储的文件路径
      * @throws IOException 如果存储失败或文件为空，则抛出 IOException
      */
-    public String storeProcedureVid(MultipartFile file, ObjectId id) throws IOException {
+    public String storeProcedureVid(MultipartFile file, String id) throws IOException {
         if (file.isEmpty()) {
             throw new IOException("Failed to store empty file.");
         }
 
-        Path destinationPath = Paths.get(procedureVidDir + id.toString() + "_" + file.getOriginalFilename());
+        Path destinationPath = Paths.get(procedureVidDir + id + "_" + file.getOriginalFilename());
         Files.copy(file.getInputStream(), destinationPath);
 
         return destinationPath.toString();
@@ -100,8 +100,8 @@ public class FileStorageService {
      * @param fileName      要删除的文件名称
      * @throws IOException 如果删除失败或文件不存在，则抛出 IOException
      */
-    public void deleteProcedureVid(ObjectId id, String fileName) throws IOException {
-        Path destinationPath = Paths.get(procedureVidDir + id.toString() + "_" + fileName);
+    public void deleteProcedureVid(String id, String fileName) throws IOException {
+        Path destinationPath = Paths.get(procedureVidDir + id + "_" + fileName);
         if (Files.exists(destinationPath)) {
             Files.delete(destinationPath);
             System.out.println("视频删除成功");
@@ -117,8 +117,8 @@ public class FileStorageService {
      * @param fileName      要删除的文件名称
      * @throws IOException 如果删除失败或文件不存在，则抛出 IOException
      */
-    public void deleteProcedurePic(ObjectId id, String fileName) throws IOException {
-        Path destinationPath = Paths.get(procedurePicDir + id.toString() + "_" + fileName);
+    public void deleteProcedurePic(String id, String fileName) throws IOException {
+        Path destinationPath = Paths.get(procedurePicDir + id + "_" + fileName);
         if (Files.exists(destinationPath)) {
             Files.delete(destinationPath);
             System.out.println("图片删除成功");
