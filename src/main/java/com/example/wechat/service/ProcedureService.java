@@ -183,7 +183,7 @@ public class ProcedureService {
         Optional<Procedure> procedureOptional = procedureRepository.findById(id);
         if (procedureOptional.isPresent()) {
             Procedure procedure = procedureOptional.get();
-            String procedureName = procedure.getName();
+
             procedure.getPicUrlList().remove(picUrl);// 更新流程的图片URL
             procedureRepository.save(procedure); // 保存更改
         } else {
@@ -202,7 +202,7 @@ public class ProcedureService {
         Optional<Procedure> procedureOptional = procedureRepository.findById(id);
         if (procedureOptional.isPresent()) {
             Procedure procedure = procedureOptional.get();
-            String procedureName = procedure.getName();
+
             procedure.getVideoUrlList().remove(vidUrl); // 更新流程的图片URL
             procedureRepository.save(procedure); // 保存更改
         } else {
@@ -211,8 +211,5 @@ public class ProcedureService {
     }
 
 
-    public Object findProcedureByFacilityId(Object any) {
 
-        return any;
-    }
 }
