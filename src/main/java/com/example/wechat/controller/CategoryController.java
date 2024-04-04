@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import utils.Result;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 import java.util.Optional;
 @RestController
 @CrossOrigin
@@ -50,19 +51,21 @@ public class CategoryController {
     }
 
     @ApiOperation(value = "删除病类", notes = "删除指定的病类，需要管理员权限。如果病类被引用，则更新引用为'待定'。")
-    @DeleteMapping("/deleteCategoryById")
+    @DeleteMapping("/deleteCategory")
     public ResponseEntity<String> deleteCategoryById(
-            @ApiParam(value = "病类ID", required = true) @RequestParam String categoryId,
+            @ApiParam(value = "病类ID", required = true)  @RequestBody Map<String, String> payload,
             HttpSession session) {
         String userAuth = (String) session.getAttribute("authLevel");
-
         if (userAuth == null || !"2".equals(userAuth)) {
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备管理员权限"));
         }
 
         try {
-            ObjectId id = new ObjectId(categoryId);
-            categoryService.deleteCategory(id);
+            // 从请求体中获取部门id
+            String id = payload.get("id");
+
+            ObjectId categoryId = new ObjectId(id);
+            categoryService.deleteCategory(categoryId);
             return ResponseEntity.ok(Result.okGetString("病类删除成功，相关引用已更新为'待定'"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Result.errorGetString("删除病类失败: " + e.getMessage()));
@@ -96,19 +99,19 @@ public class CategoryController {
 
     //获取所有病类
     @ApiOperation(value = "查找所有病类", notes = "查找所有病类")
-    @GetMapping("/getAllCategories")
+    @GetMapping("/findAllCategories")
     public ResponseEntity<String> getAllCategories() {
         return ResponseEntity.ok(Result.okGetStringByData("获取所有病类成功", categoryService.getAllCategories()));
     }
 
     //根据病类ID获取病类
     @ApiOperation(value = "查找病类", notes = "通过病类ID查找病类")
-    @GetMapping("/getCategoryById")
+    @GetMapping("/findCategoryById")
     public ResponseEntity<String> getCategoryById(
-            @ApiParam(value = "病类ID", required = true) @RequestParam String categoryId) {
+            @ApiParam(value ="病类ID", required = true) @RequestParam String id) {
         try {
-            ObjectId id = new ObjectId(categoryId);
-            Optional<Category> category = categoryService.getCategoryById(id);
+            ObjectId categoryId = new ObjectId(id);
+            Optional<Category> category = categoryService.getCategoryById(categoryId);
             return ResponseEntity.ok(Result.okGetStringByData("获取病类成功", category));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Result.errorGetString("获取病类失败: " + e.getMessage()));
@@ -117,7 +120,7 @@ public class CategoryController {
 
     //根据病类名称模糊查找病类
     @ApiOperation(value = "查找病类", notes = "通过病类名称模糊查找病类")
-    @GetMapping("/getCategoriesByNameLike")
+    @GetMapping("/findCategoriesByNameLike")
     public ResponseEntity<String> getCategoriesByNameLike(
             @ApiParam(value = "病类名称", required = true) @RequestParam String name) {
         try {
