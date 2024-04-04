@@ -144,7 +144,7 @@ public class FacilityController {
             @ApiResponse(code = 200, message = "获取设施信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
-    @GetMapping("/searchFacilityByName")
+    @GetMapping("/findFacilityByName")
     public ResponseEntity<String> findFacilityByName(
             @ApiParam(name = "name", value = "设备名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {

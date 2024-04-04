@@ -141,7 +141,7 @@ public class DrugController {
             @ApiResponse(code = 200, message = "获取药品信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
-    @GetMapping("/searchDrugByName")
+    @GetMapping("/findDrugByName")
     public ResponseEntity<String> findDrugByName(
             @ApiParam(name = "name", value = "药品名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {

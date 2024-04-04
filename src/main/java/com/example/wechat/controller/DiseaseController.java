@@ -155,7 +155,7 @@ public class DiseaseController {
             @ApiResponse(code = 200, message = "获取疾病信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
-    @GetMapping("/searchDiseasesByName")
+    @GetMapping("/findDiseasesByName")
     public ResponseEntity<String> findDiseasesByName(
             @ApiParam(name = "name", value = "疾病名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {
