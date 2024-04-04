@@ -1,5 +1,7 @@
 package com.example.wechat.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -13,6 +15,7 @@ import java.util.List;
 @ApiModel(description = "扮演过程")
 public class Procedure {
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private Integer index;
     private String text;

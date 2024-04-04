@@ -1,5 +1,7 @@
 package com.example.wechat.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -12,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "角色信息")
 public class Role {
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
 
     @ApiModelProperty(value = "角色名称", required = true, example = "实习医师")

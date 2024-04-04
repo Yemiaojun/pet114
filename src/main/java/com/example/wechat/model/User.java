@@ -1,5 +1,7 @@
 package com.example.wechat.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -12,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "用户信息")
 public class User {
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
 
     @ApiModelProperty(value = "用户名", required = true, example = "john_doe")
@@ -34,4 +37,6 @@ public class User {
 
     @ApiModelProperty(value = "安全问题答案", example = "Fluffy")
     private String securityQuestionAnswer;
+
+
 }
