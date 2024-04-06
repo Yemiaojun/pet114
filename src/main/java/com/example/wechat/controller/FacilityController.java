@@ -206,9 +206,11 @@ public class FacilityController {
             // 用户未登录或不具备管理员权限
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
-
+        try{
         Optional<Facility> facility = facilityService.findFacilityById(new ObjectId(id));
-        return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facility));
+        return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facility));}catch (Exception e){
+            return ResponseEntity.badRequest().body(Result.errorGetString("对应id不存在"));
+        }
     }
 
     /**
