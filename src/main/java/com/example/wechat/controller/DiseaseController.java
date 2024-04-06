@@ -213,16 +213,20 @@ public class DiseaseController {
     })
     @GetMapping("/findDiseaseById")
     public ResponseEntity<String> findDiseaseById(
-            @ApiParam(name = "id", value = "疾病id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
+            @ApiParam(name = "id", value = "疾病id", required = true, example = "saisunwoiudoiu") @RequestParam String id,
             HttpSession session) {
         // 检查用户登录
         String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            // 用户未登录
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        if (userId != null) {
+            try {
+                Optional<Disease> disease = diseaseService.findDiseaseById(new ObjectId(id));
+                return ResponseEntity.ok(Result.okGetStringByData("获取疾病信息成功", disease));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+            }
         }
+        // 用户未登录
+        return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
 
-        Optional<Disease> disease = diseaseService.findDiseaseById(new ObjectId(id));
-        return ResponseEntity.ok(Result.okGetStringByData("获取疾病信息成功", disease));
     }
 }
