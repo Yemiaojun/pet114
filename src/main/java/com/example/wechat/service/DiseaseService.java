@@ -5,6 +5,7 @@ import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.format.NameChecker;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
+import com.example.wechat.repository.CategoryRepository;
 import com.example.wechat.repository.DiseaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,9 @@ public class DiseaseService {
 
     @Autowired
     private DiseaseRepository diseaseRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
 
     /**
@@ -104,7 +108,8 @@ public class DiseaseService {
      * @param categoryId 分类 ID
      * @return 返回该分类下的所有疾病信息列表
      */
-    public List<Disease> getDiseasesByCategoryId(ObjectId categoryId) {
+    public List<Disease> findDiseasesByCategoryId(ObjectId categoryId) throws IdNotFoundException {
+        if(!categoryRepository.findById(categoryId).isPresent()) throw new IdNotFoundException("对应病种不存在");
         return diseaseRepository.findByCategoryId(categoryId);
     }
 

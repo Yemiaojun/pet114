@@ -200,13 +200,13 @@ public class DiseaseController {
 
 
     /**
-     * 根据设备ID获取疾病信息。
+     * 根据疾病ID获取疾病信息。
      *
      * @param id 疾病ID
      * @param session HTTP会话
      * @return ResponseEntity 包含疾病信息的响应实体
      */
-    @ApiOperation(value = "根据疾病id获取部门", notes = "返回对应疾病，需要用户登录")
+    @ApiOperation(value = "根据疾病id获取疾病", notes = "返回对应疾病，需要用户登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有疾病信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
@@ -220,6 +220,38 @@ public class DiseaseController {
         if (userId != null) {
             try {
                 Optional<Disease> disease = diseaseService.findDiseaseById(new ObjectId(id));
+                return ResponseEntity.ok(Result.okGetStringByData("获取疾病信息成功", disease));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+            }
+        }
+        // 用户未登录
+        return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+
+    }
+
+
+    /**
+     * 根据病种ID获取疾病列表信息。
+     *
+     * @param id 病种ID
+     * @param session HTTP会话
+     * @return ResponseEntity 包含疾病列表信息的响应实体
+     */
+    @ApiOperation(value = "根据病种id获取疾病", notes = "返回对应疾病列表，需要用户登录")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取所有疾病列表信息成功"),
+            @ApiResponse(code = 400, message = "用户未登录")
+    })
+    @GetMapping("/findDiseaseByCategoryId")
+    public ResponseEntity<String> findDiseaseByCategoryId(
+            @ApiParam(name = "id", value = "疾病id", required = true, example = "saisunwoiudoiu") @RequestParam String id,
+            HttpSession session) {
+        // 检查用户登录
+        String userId = (String) session.getAttribute("userId");
+        if (userId != null) {
+            try {
+                List<Disease> disease = diseaseService.findDiseasesByCategoryId(new ObjectId(id));
                 return ResponseEntity.ok(Result.okGetStringByData("获取疾病信息成功", disease));
             }catch (Exception e){
                 return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
