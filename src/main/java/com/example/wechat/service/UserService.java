@@ -48,6 +48,7 @@ public class UserService {
             throw new DefaultException("用户名已存在");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword())); // 加密密码
+        user.setAvatarUrl("file/headpic/default");
         User savedUser = userRepository.save(user);
         return Optional.of(savedUser);
     }
