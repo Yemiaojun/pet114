@@ -16,6 +16,7 @@ import utils.Result;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -56,9 +57,10 @@ public class CaseController {
     @ApiOperation(value = "删除病例", notes = "删除指定的病例，需要管理员权限")
     @DeleteMapping("/deleteCase")
     public ResponseEntity<String> deleteCase(
-            @ApiParam(value = "病例信息", required = true) @RequestBody String id,
+            @ApiParam(value = "病例信息", required = true) @RequestBody Map<String, String> payload,
             HttpSession session) {
         // 检查会话中是否有用户ID和auth信息
+        String id = payload.get("id");
         String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
         // 确认用户已登录且具有管理员权限
