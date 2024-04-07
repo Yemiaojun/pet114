@@ -116,6 +116,27 @@ public class CaseController {
         }
     }
 
+    //通过病例id查找病例
+    @ApiOperation(value = "通过病例id查找病例", notes = "通过病例id查找病例，需要管理员权限")
+    @GetMapping("/findCaseById")
+    public ResponseEntity<String> findCaseById(
+            @ApiParam(value = "病例id", required = true) @RequestBody String id,
+            HttpSession session) {
+        // 检查会话中是否有用户ID和auth信息
+        String userIdStr = (String) session.getAttribute("userId");
+        String userAuth = (String) session.getAttribute("authLevel");
+        // 确认用户已登录
+        if (userIdStr != null) {
+            // 将字符串转换为ObjectId
+            ObjectId caseId = new ObjectId(id);
+            Optional<Case> foundCase = caseService.findCaseById(caseId);
+            return ResponseEntity.ok(Result.okGetStringByData("通过病例id查找病例成功", foundCase));
+        } else {
+            // 用户未登录
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        }
+    }
+
     //通过疾病id查找病例
     @ApiOperation(value = "通过疾病id查找病例", notes = "通过疾病id查找病例，需要管理员权限")
     @GetMapping("/findCaseByDiseaseId")
@@ -127,7 +148,9 @@ public class CaseController {
         String userAuth = (String) session.getAttribute("authLevel");
         // 确认用户已登录
         if (userIdStr != null) {
-            Iterable<Case> cases = caseService.findCaseByDiseaseId(diseaseId);
+            // 将字符串转换为ObjectId
+            ObjectId id = new ObjectId(diseaseId);
+            Iterable<Case> cases = caseService.findCaseByDiseaseId(id);
             return ResponseEntity.ok(Result.okGetStringByData("通过疾病id查找病例成功", cases));
         } else {
             // 用户未登录

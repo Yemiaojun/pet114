@@ -30,5 +30,5 @@ public interface CaseRepository extends MongoRepository<Case, ObjectId> {
 
     //根据疾病的id查询病例
     @Query("{ 'disease.$id': ?0 }")
-    List<Case> findByDiseaseId(String diseaseId);
+    List<Case> findByDiseaseId(ObjectId diseaseId);
 }

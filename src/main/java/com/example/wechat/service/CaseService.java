@@ -112,7 +112,7 @@ public class CaseService {
     }
 
     //通过疾病id查询病例
-    public List<Case> findCaseByDiseaseId(String diseaseId) {
+    public List<Case> findCaseByDiseaseId(ObjectId diseaseId) {
         return caseRepository.findByDiseaseId(diseaseId);
     }
 
