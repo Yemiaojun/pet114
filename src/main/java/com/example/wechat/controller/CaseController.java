@@ -56,7 +56,7 @@ public class CaseController {
     @ApiOperation(value = "删除病例", notes = "删除指定的病例，需要管理员权限")
     @DeleteMapping("/deleteCase")
     public ResponseEntity<String> deleteCase(
-            @ApiParam(value = "病例信息", required = true) @RequestBody String caseID,
+            @ApiParam(value = "病例信息", required = true) @RequestBody String id,
             HttpSession session) {
         // 检查会话中是否有用户ID和auth信息
         String userIdStr = (String) session.getAttribute("userId");
@@ -64,8 +64,8 @@ public class CaseController {
         // 确认用户已登录且具有管理员权限
         if (userIdStr != null && "2".equals(userAuth)) {
             try {
-                ObjectId id = new ObjectId(caseID);
-                Optional<Case> deletedCase = caseService.deleteCase(id);
+                ObjectId caseId = new ObjectId(id);
+                Optional<Case> deletedCase = caseService.deleteCase(caseId);
                 return ResponseEntity.ok(Result.okGetStringByData("病例删除成功", deletedCase));
             } catch (DefaultException de) {
                 return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));
