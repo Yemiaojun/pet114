@@ -5,10 +5,7 @@ import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.exception.NameNotFoundException;
 import com.example.wechat.format.NameChecker;
-import com.example.wechat.model.Category;
-import com.example.wechat.model.Department;
-import com.example.wechat.model.Disease;
-import com.example.wechat.model.Facility;
+import com.example.wechat.model.*;
 import com.example.wechat.repository.DepartmentRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,6 +164,22 @@ public class DepartmentService {
         Optional<Department> department = departmentRepository.findById(id);
         if(department.isPresent()) return department;
         else throw new IdNotFoundException("对应id不存在");
+    }
+
+    public List<Department> findDepartmentByRoleId(ObjectId id) throws  IdNotFoundException{
+        List<Department> departments = findAllDepartments();
+        for(Department department : departments){
+            List<Role> roles = department.getRoleList();
+            boolean flag = false;
+            for(Role role : roles){
+                if(role.getId().equals(id)){
+                    flag = true;
+                    break;
+                }
+            }
+            if(!flag) departments.remove(department);
+        }
+        return departments;
     }
 
 
