@@ -3,8 +3,10 @@ package com.example.wechat.service;
 import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.format.NameChecker;
+import com.example.wechat.model.Case;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
+import com.example.wechat.repository.CaseRepository;
 import com.example.wechat.repository.CategoryRepository;
 import com.example.wechat.repository.DiseaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class DiseaseService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private CaseRepository caseRepository;
 
 
     /**
@@ -66,6 +71,12 @@ public class DiseaseService {
             throw new IdNotFoundException("对应疾病不存在");
         }
         diseaseRepository.delete(existedDisease.get());
+
+        //级联删除case
+        List<Case> cases = caseRepository.findByDiseaseId(id);
+        for(Case cas : cases){
+            caseRepository.delete(cas);
+        }
         return existedDisease;
     }
 
