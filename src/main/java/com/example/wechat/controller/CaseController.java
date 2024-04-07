@@ -54,7 +54,7 @@ public class CaseController {
 
     //删除病例
     @ApiOperation(value = "删除病例", notes = "删除指定的病例，需要管理员权限")
-    @PostMapping("/deleteCase")
+    @DeleteMapping("/deleteCase")
     public ResponseEntity<String> deleteCase(
             @ApiParam(value = "病例信息", required = true) @RequestBody String caseID,
             HttpSession session) {
@@ -78,7 +78,7 @@ public class CaseController {
 
     //更新病例
     @ApiOperation(value = "更新病例", notes = "更新指定的病例，需要管理员权限")
-    @PostMapping("/updateCase")
+    @PutMapping ("/updateCase")
     public ResponseEntity<String> updateCase(
             @ApiParam(value = "病例信息", required = true) @RequestBody Case updatedCase,
             HttpSession session) {
@@ -101,7 +101,7 @@ public class CaseController {
 
     //查找所有病例
     @ApiOperation(value = "查找所有病例", notes = "查找所有病例，需要管理员权限")
-    @PostMapping("/findAllCases")
+    @GetMapping("/findAllCases")
     public ResponseEntity<String> findAllCases(HttpSession session) {
         // 检查会话中是否有用户ID和auth信息
         String userIdStr = (String) session.getAttribute("userId");
@@ -118,7 +118,7 @@ public class CaseController {
 
     //通过疾病id查找病例
     @ApiOperation(value = "通过疾病id查找病例", notes = "通过疾病id查找病例，需要管理员权限")
-    @PostMapping("/findCaseByDiseaseId")
+    @GetMapping("/findCaseByDiseaseId")
     public ResponseEntity<String> findCaseByDiseaseId(
             @ApiParam(value = "疾病id", required = true) @RequestBody String diseaseId,
             HttpSession session) {
@@ -138,7 +138,7 @@ public class CaseController {
 
     //通过病例名称查找病例
     @ApiOperation(value = "通过病例名称查找病例", notes = "通过病例名称查找病例，需要管理员权限")
-    @PostMapping("/findCaseByName")
+    @GetMapping("/findCaseByName")
     public ResponseEntity<String> findCaseByName(
             @ApiParam(value = "病例名称", required = true) @RequestBody String name,
             HttpSession session) {
@@ -157,7 +157,7 @@ public class CaseController {
 
     //通过病例描述模糊查找病例
     @ApiOperation(value = "通过病例描述模糊查找病例", notes = "通过病例描述模糊查找病例,需要用户已经登录")
-    @PostMapping("/findCaseByTextListLike")
+    @GetMapping("/findCaseByTextListLike")
     public ResponseEntity<String> findCaseByTextListLike(
             @ApiParam(value = "病例描述", required = true) @RequestBody String regex,
             HttpSession session) {
@@ -266,7 +266,7 @@ public class CaseController {
 
     //删除病例中的指定图片
     @ApiOperation(value = "删除病例图片", notes = "删除病例中的指定图片，需要用户已经登录")
-    @PostMapping("/deleteCaseImage")
+    @DeleteMapping("/deleteCaseImage")
     public ResponseEntity<String> deleteCaseImage(
             @ApiParam(value = "病例id", required = true) @RequestParam("caseId") String caseId,
             @ApiParam(value = "图片位置", required = true) @RequestParam("index") int index,
@@ -381,7 +381,7 @@ public class CaseController {
 
     //删除病例中的指定视频
     @ApiOperation(value = "删除病例视频", notes = "删除病例中的指定视频，需要用户已经登录")
-    @PostMapping("/deleteCaseVideo")
+    @DeleteMapping("/deleteCaseVideo")
     public ResponseEntity<String> deleteCaseVideo(
             @ApiParam(value = "病例id", required = true) @RequestParam("caseId") String caseId,
             @ApiParam(value = "视频位置", required = true) @RequestParam("index") int index,

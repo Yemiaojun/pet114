@@ -20,6 +20,11 @@ public class CaseService {
 
     // 添加病例的业务逻辑
     public Optional<Case> addCase(Case newCase) {
+        // 检查病例名称是否为空
+        if(newCase.getName() == null || newCase.getName().equals("")){
+            throw new DefaultException("病例名称不能为空");
+        }
+
         // 检查是否已经存在相同名称的病例
         Optional<Case> existingCase = caseRepository.findByName(newCase.getName());
         if (existingCase.isPresent()) {
@@ -27,7 +32,16 @@ public class CaseService {
             throw new DefaultException("本病例已存在");
         }
 
-        // 病例名称不存在，添加新病例
+        // 检查病例名称长度是否小于20
+        if(newCase.getName().length() > 20){
+            throw new DefaultException("病例名称长度不能超过20");
+        }
+
+        // 检查病例名称是否是汉语或者英语
+        if(!newCase.getName().matches("[a-zA-Z0-9\\u4e00-\\u9fa5]+")){
+            throw new DefaultException("病例名称只能包含汉字、字母和数字");
+        }
+
         Case savedCase = caseRepository.save(newCase);
         return Optional.of(savedCase);
     }
@@ -49,11 +63,28 @@ public class CaseService {
       @throws IdNotFoundException    如果指定的病例 ID 不存在，则抛出该异常
      */
     public Optional<Case> updateCase(Case updatedCase) {
+
         // 检查病例是否存在
         Optional<Case> existingCase = caseRepository.findById(updatedCase.getId());
         if (!existingCase.isPresent()) {
             throw new DefaultException("病例不存在");
         }
+
+        // 检查病例名称是否为空
+        if(updatedCase.getName() == null || updatedCase.getName().equals("")){
+            throw new DefaultException("病例名称不能为空");
+        }
+
+        // 检查病例名称长度是否小于20
+        if(updatedCase.getName().length() > 20){
+            throw new DefaultException("病例名称长度不能超过20");
+        }
+
+        // 检查病例名称是否是汉语或者英语
+        if(!updatedCase.getName().matches("[a-zA-Z0-9\\u4e00-\\u9fa5]+")){
+            throw new DefaultException("病例名称只能包含汉字、字母和数字");
+        }
+
 
         // 病例存在，执行更新操作
         Case savedCase = caseRepository.save(updatedCase);

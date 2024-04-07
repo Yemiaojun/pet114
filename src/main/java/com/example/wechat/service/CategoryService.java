@@ -19,12 +19,28 @@ public class CategoryService {
 
     // 添加类别的业务逻辑
     public Optional<Category> addCategory (Category category) {
+        // 判断病种的名字是否为空
+        if (category.getName() == null) {
+            throw new DefaultException("类别名不能为空");
+        }
+
        // 检查是否已经存在相同名称的类别
          Optional<Category> existingCategory = categoryRepository.findByName(category.getName());
             if (existingCategory.isPresent()) {
                 // 类别名称已存在，返回空Optional作为错误指示
                 throw new DefaultException("本类名已存在");
             }
+
+            //判断名字的长度是否小于等于20
+            if (category.getName().length() > 20) {
+                throw new DefaultException("类别名长度不能超过20");
+            }
+
+            //判断名字是否都是汉字，字母，数字
+            if (!category.getName().matches("[\\u4e00-\\u9fa5_a-zA-Z0-9]+")) {
+                throw new DefaultException("类别名只能包含汉字、字母和数字");
+            }
+
 
             // 类别名称不存在，添加新类别
             Category savedCategory = categoryRepository.save(category);
@@ -85,6 +101,28 @@ public class CategoryService {
         Optional<Category> existingCategory = categoryRepository.findById(updatedCategory.getId());
         if (!existingCategory.isPresent()) {
             throw new DefaultException("类别不存在");
+        }
+
+        // 判断类别名是否为空
+        if (updatedCategory.getName() == null) {
+            throw new DefaultException("类别名不能为空");
+        }
+
+        //判断名字的长度是否小于等于20
+        if (updatedCategory.getName().length() > 20) {
+            throw new DefaultException("类别名长度不能超过20");
+        }
+
+        //判断名字是否都是汉字，字母，数字
+        if (!updatedCategory.getName().matches("[\\u4e00-\\u9fa5_a-zA-Z0-9]+")) {
+            throw new DefaultException("类别名只能包含汉字、字母和数字");
+        }
+
+        // 检查是否已经存在相同名称的类别
+        Optional<Category> existingCategoryName = categoryRepository.findByName(updatedCategory.getName());
+        if (existingCategoryName.isPresent() && !existingCategoryName.get().getId().equals(updatedCategory.getId())) {
+            // 类别名称已存在，返回空Optional作为错误指示
+            throw new DefaultException("本类名已存在");
         }
 
         // 类别存在，执行更新操作

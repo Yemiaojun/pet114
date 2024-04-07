@@ -166,6 +166,7 @@ public class FileStorageService {
         return destinationPath.toString();
     }
 
+
     public String storeCaseVideo(MultipartFile file, String name) {
         if (file.isEmpty()) {
             throw new RuntimeException("Failed to store empty file.");
@@ -180,4 +181,5 @@ public class FileStorageService {
 
         return destinationPath.toString();
     }
+
 }
