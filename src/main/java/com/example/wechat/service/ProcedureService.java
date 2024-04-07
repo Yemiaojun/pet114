@@ -1,19 +1,18 @@
 package com.example.wechat.service;
 
-import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.exception.NameNotFoundException;
 import com.example.wechat.model.*;
 import com.example.wechat.repository.ProcedureRepository;
-import org.apache.tomcat.jni.Proc;
 import org.bson.types.ObjectId;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProcedureService {
@@ -33,7 +32,7 @@ public class ProcedureService {
 
         //如果当前角色有相同名字的流程，那么创建失败
         for (Procedure existedProcedure : existedProcedures){
-            if(existedProcedure.getName().equals(procedure.getName()))
+            if(existedProcedure.getIndex().equals(procedure.getIndex()))
                 throw new NameAlreadyExistedException("当前角色已存在该流程");
         }
 
@@ -77,15 +76,15 @@ public class ProcedureService {
      */
     public Optional<Procedure> updateProcedure(Procedure procedure) throws IdNotFoundException,NameAlreadyExistedException{
         Optional<Procedure> procedureOriginal = procedureRepository.findById(procedure.getId());
-        String name = procedureOriginal.get().getName();
+        Integer name = procedureOriginal.get().getIndex();
         Role role = procedureOriginal.get().getRole();
         if(procedureOriginal.isPresent()){
            List<Procedure> procedures = procedureRepository.findByRoleId(procedure.getRole().getId());
 
            //如果给流程换了名字，那么对该角色列表中的所有流程名字进行唯一性检查
-           if(!name.equals(procedure.getName())){
+           if(!name.equals(procedure.getIndex())){
                for (Procedure p: procedures){
-                   if (procedure.getName().equals(p.getName()) && !procedure.getId().equals(p.getId()))
+                   if (procedure.getIndex().equals(p.getIndex()) && !procedure.getId().equals(p.getId()))
                        throw new NameAlreadyExistedException("该流程已存在");
                }
            }
@@ -93,7 +92,7 @@ public class ProcedureService {
             //如果给流程换了角色，那么对该角色列表中的所有流程名字进行唯一性检查
             if(!role.equals(procedure.getRole())){
                 for (Procedure p: procedures){
-                    if (procedure.getName().equals(p.getName()))
+                    if (procedure.getIndex().equals(p.getIndex()))
                         throw new NameAlreadyExistedException("该流程已存在");
                 }
             }
@@ -128,9 +127,11 @@ public class ProcedureService {
      * @return 包含流程的列表对象，如果找到则返回角色对应的流程信息，否则返回空 Optional
      */
     public List<Procedure> findProcedureByRoleId(ObjectId id) {
-
         List<Procedure> procedures = procedureRepository.findByRoleId(id);
-        return procedures;
+        // 使用Stream API进行排序
+        return procedures.stream()
+                .sorted(Comparator.comparingInt(Procedure::getIndex))
+                .collect(Collectors.toList());
     }
 
 
@@ -183,7 +184,7 @@ public class ProcedureService {
         Optional<Procedure> procedureOptional = procedureRepository.findById(id);
         if (procedureOptional.isPresent()) {
             Procedure procedure = procedureOptional.get();
-            String procedureName = procedure.getName();
+
             procedure.getPicUrlList().remove(picUrl);// 更新流程的图片URL
             procedureRepository.save(procedure); // 保存更改
         } else {
@@ -202,7 +203,7 @@ public class ProcedureService {
         Optional<Procedure> procedureOptional = procedureRepository.findById(id);
         if (procedureOptional.isPresent()) {
             Procedure procedure = procedureOptional.get();
-            String procedureName = procedure.getName();
+
             procedure.getVideoUrlList().remove(vidUrl); // 更新流程的图片URL
             procedureRepository.save(procedure); // 保存更改
         } else {
@@ -211,8 +212,5 @@ public class ProcedureService {
     }
 
 
-    public Object findProcedureByFacilityId(Object any) {
 
-        return any;
-    }
 }

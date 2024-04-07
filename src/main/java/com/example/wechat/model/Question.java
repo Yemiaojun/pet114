@@ -1,5 +1,7 @@
 package com.example.wechat.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -14,6 +16,7 @@ import java.util.List;
 @ApiModel(description = "问题信息")
 public class Question {
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
 
     @DBRef

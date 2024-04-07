@@ -198,7 +198,7 @@ public class ProcedureController {
 
         try {
             ObjectId procedureId = new ObjectId(id);
-            Procedure procedure = procedureService.findProcedureById(procedureId).orElseThrow(() -> new RuntimeException("设备不存在"));
+            Procedure procedure = procedureService.findProcedureById(procedureId).orElseThrow(() -> new RuntimeException("过程不存在"));
             String filePath;
             if ("pic".equalsIgnoreCase(type)) {
                 filePath = fileStorageService.storeProcedurePic(file, file.getOriginalFilename());
@@ -248,11 +248,11 @@ public class ProcedureController {
             Procedure procedure = procedureService.findProcedureById(procedureId).orElseThrow(() -> new RuntimeException("设备不存在"));
             String filePath;
             if ("pic".equalsIgnoreCase(type)) {
-                fileStorageService.deleteProcedurePic(procedure.getName(), name);
+                fileStorageService.deleteProcedurePic(String.valueOf(procedure.getId()), name);
                 procedureService.deleteProcedurePicUrl(procedureId, name);
                 return ResponseEntity.ok(Result.okGetStringByData("图片删除成功",name));
             } else if ("vid".equalsIgnoreCase(type)) {
-                fileStorageService.deleteProcedureVid(procedure.getName(), name);
+                fileStorageService.deleteProcedureVid(String.valueOf(procedure.getId()), name);
                 procedureService.deleteProcedureVidUrl(procedureId, name);
                 return ResponseEntity.ok(Result.okGetStringByData("视频删除成功",name));
             } else {

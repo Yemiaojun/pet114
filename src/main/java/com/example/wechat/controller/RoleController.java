@@ -19,6 +19,7 @@ import java.util.Optional;
 
 @CrossOrigin
 @Controller
+@RequestMapping("/role")
 public class RoleController {
     @Autowired
     private RoleService roleService;

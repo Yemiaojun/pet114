@@ -144,7 +144,7 @@ public class FacilityController {
             @ApiResponse(code = 200, message = "获取设施信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
-    @GetMapping("/searchFacilityByName")
+    @GetMapping("/findFacilitiesByName")
     public ResponseEntity<String> findFacilityByName(
             @ApiParam(name = "name", value = "设备名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {
@@ -206,9 +206,11 @@ public class FacilityController {
             // 用户未登录或不具备管理员权限
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
-
+        try{
         Optional<Facility> facility = facilityService.findFacilityById(new ObjectId(id));
-        return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facility));
+        return ResponseEntity.ok(Result.okGetStringByData("获取设备信息成功", facility));}catch (Exception e){
+            return ResponseEntity.badRequest().body(Result.errorGetString("对应id不存在"));
+        }
     }
 
     /**

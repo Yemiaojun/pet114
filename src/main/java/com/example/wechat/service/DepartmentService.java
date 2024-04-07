@@ -4,6 +4,7 @@ import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.exception.NameNotFoundException;
+import com.example.wechat.format.NameChecker;
 import com.example.wechat.model.Category;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
@@ -28,14 +29,19 @@ public class DepartmentService {
      * @param department 要添加的科室对象
      * @return 添加成功后的疾病对象
      * @throws NameAlreadyExistedException 如果科室名已经存在，则抛出 NameAlreadyExistedException 异常
+     * @throws DefaultException 如果科室名不合法，则抛出 DefaultException 异常
      */
-    public Department addDepartment(Department department) throws NameAlreadyExistedException {
+    public Department addDepartment(Department department) throws NameAlreadyExistedException,DefaultException {
         Optional<Department> existedDepatment = departmentRepository.findDepartmentByName(department.getName());
 
         //对应名字的disease存在则报错
         if(existedDepatment.isPresent()){
             throw new NameAlreadyExistedException("名字已存在");
         }
+
+        //检查名字的合法性，如果不正确则抛出错误
+        NameChecker.nameIsLegal(department.getName());
+
         Department savedDepartment = departmentRepository.save(department);
         return savedDepartment;
     }
@@ -96,8 +102,9 @@ public class DepartmentService {
      * @return 更新后的科室对象的 Optional 包装，如果更新成功则包含更新后的对象，否则为空
      * @throws NameAlreadyExistedException 如果修改了科室名称且新名称已存在，则抛出该异常
      * @throws IdNotFoundException        如果指定的科室 ID 不存在，则抛出该异常
+     * @throws DefaultException 如果科室名不合法，则抛出 DefaultException 异常
      */
-    public Optional<Department> updateDepartment(Department department) throws NameAlreadyExistedException, IdNotFoundException {
+    public Optional<Department> updateDepartment(Department department) throws NameAlreadyExistedException, IdNotFoundException,DefaultException {
         Optional<Department> departmentOriginal = departmentRepository.findDepartmentById(department.getId());
         if(departmentOriginal.isPresent()){
             Department department_editing = departmentOriginal.get();
@@ -110,6 +117,10 @@ public class DepartmentService {
                 if(existedDepartment.isPresent()){
                     throw new NameAlreadyExistedException("科室名字已存在,更改失败");
                 }
+
+                //检查名字的合法性，如果不正确则抛出错误
+                NameChecker.nameIsLegal(department.getName());
+
             }
             department_editing.setName(department.getName());
             department_editing.setInfo(department.getInfo());

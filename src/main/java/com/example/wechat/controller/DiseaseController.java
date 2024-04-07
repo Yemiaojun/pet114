@@ -79,7 +79,7 @@ public class DiseaseController {
      */
     @ApiOperation(value="删除疾病", notes = "删除疾病，需要管理员权限")
     @ApiImplicitParam(name = "id", value = "部门", required = true, dataType = "String", paramType = "query")
-    @PostMapping("/deleteDisease")
+    @DeleteMapping("/deleteDisease")
     public ResponseEntity<String> deleteDisease(
             @RequestBody Map<String, String> payload,
             HttpSession session) {
@@ -96,13 +96,13 @@ public class DiseaseController {
             try{
             Optional<Disease> dd = diseaseService.deleteDiseaseById(new ObjectId(id));
             return ResponseEntity.ok(Result.okGetStringByData("疾病删除成功",dd));
-            }catch (DefaultException de){
+            }catch (Exception de){
                 return ResponseEntity.badRequest().body(Result.errorGetString(de.getMessage()));
             }
 
         } else {
             // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备添加权限"));
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备删除权限"));
         }
     }
 
@@ -155,7 +155,7 @@ public class DiseaseController {
             @ApiResponse(code = 200, message = "获取疾病信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
-    @GetMapping("/searchDiseasesByName")
+    @GetMapping("/findDiseasesByName")
     public ResponseEntity<String> findDiseasesByName(
             @ApiParam(name = "name", value = "疾病名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {
@@ -200,29 +200,65 @@ public class DiseaseController {
 
 
     /**
-     * 根据设备ID获取疾病信息。
+     * 根据疾病ID获取疾病信息。
      *
      * @param id 疾病ID
      * @param session HTTP会话
      * @return ResponseEntity 包含疾病信息的响应实体
      */
-    @ApiOperation(value = "根据疾病id获取部门", notes = "返回对应疾病，需要用户登录")
+    @ApiOperation(value = "根据疾病id获取疾病", notes = "返回对应疾病，需要用户登录")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有疾病信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
     @GetMapping("/findDiseaseById")
     public ResponseEntity<String> findDiseaseById(
-            @ApiParam(name = "id", value = "疾病id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
+            @ApiParam(name = "id", value = "疾病id", required = true, example = "saisunwoiudoiu") @RequestParam String id,
             HttpSession session) {
         // 检查用户登录
         String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            // 用户未登录
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        if (userId != null) {
+            try {
+                Optional<Disease> disease = diseaseService.findDiseaseById(new ObjectId(id));
+                return ResponseEntity.ok(Result.okGetStringByData("获取疾病信息成功", disease));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+            }
         }
+        // 用户未登录
+        return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
 
-        Optional<Disease> disease = diseaseService.findDiseaseById(new ObjectId(id));
-        return ResponseEntity.ok(Result.okGetStringByData("获取疾病信息成功", disease));
+    }
+
+
+    /**
+     * 根据病种ID获取疾病列表信息。
+     *
+     * @param id 病种ID
+     * @param session HTTP会话
+     * @return ResponseEntity 包含疾病列表信息的响应实体
+     */
+    @ApiOperation(value = "根据病种id获取疾病", notes = "返回对应疾病列表，需要用户登录")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取所有疾病列表信息成功"),
+            @ApiResponse(code = 400, message = "用户未登录")
+    })
+    @GetMapping("/findDiseaseByCategoryId")
+    public ResponseEntity<String> findDiseaseByCategoryId(
+            @ApiParam(name = "id", value = "疾病id", required = true, example = "saisunwoiudoiu") @RequestParam String id,
+            HttpSession session) {
+        // 检查用户登录
+        String userId = (String) session.getAttribute("userId");
+        if (userId != null) {
+            try {
+                List<Disease> disease = diseaseService.findDiseasesByCategoryId(new ObjectId(id));
+                return ResponseEntity.ok(Result.okGetStringByData("获取疾病信息成功", disease));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+            }
+        }
+        // 用户未登录
+        return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+
     }
 }

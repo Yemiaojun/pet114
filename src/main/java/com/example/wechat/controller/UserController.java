@@ -299,6 +299,28 @@ public class UserController {
         }
     }
 
+    @ApiOperation(value = "删除用户", notes = "根据用户ID删除用户及相关记录，需要管理员权限")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "用户删除成功"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 403, message = "无管理员权限"),
+            @ApiResponse(code = 404, message = "用户未找到")
+    })
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable String userId, HttpSession session) {
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (userAuth == null || !"2".equals(userAuth)) {
+            return ResponseEntity.status(403).body(Result.errorGetString("无管理员权限"));
+        }
+
+        try {
+            userService.deleteUserById(userId);
+            return ResponseEntity.ok(Result.okGetString("用户删除成功"));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(Result.errorGetString("用户未找到"));
+        }
+    }
+
 
 
 }

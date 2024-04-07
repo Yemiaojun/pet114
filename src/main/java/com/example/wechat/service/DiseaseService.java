@@ -2,8 +2,10 @@ package com.example.wechat.service;
 
 import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
+import com.example.wechat.format.NameChecker;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Disease;
+import com.example.wechat.repository.CategoryRepository;
 import com.example.wechat.repository.DiseaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class DiseaseService {
     @Autowired
     private DiseaseRepository diseaseRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
 
     /**
      * 添加一个新的疾病信息。
@@ -36,6 +41,10 @@ public class DiseaseService {
         if(existedDisease.isPresent()){
             throw new DefaultException("名字已存在");
         }
+
+        //检查名字的合法性，如果不正确则抛出错误
+        NameChecker.nameIsLegal(disease.getName());
+
         Disease savedDisease = diseaseRepository.save(disease);
         return savedDisease;
     }
@@ -73,7 +82,7 @@ public class DiseaseService {
         if(diseaseOriginal.isPresent()){
             Disease dese = diseaseOriginal.get();
 
-            //如果修改了名字，那么对名字的唯一性进行校验
+            //如果修改了名字，那么对名字的约束进行校验
             if(!dese.getName().equals(disease.getName())){
                 Optional<Disease> existedDisease = diseaseRepository.findDiseaseByName(disease.getName());
 
@@ -81,6 +90,9 @@ public class DiseaseService {
                 if(existedDisease.isPresent()){
                    throw new DefaultException("名字已存在");
                 }
+
+                //检查名字的合法性，如果不正确则抛出错误
+                NameChecker.nameIsLegal(disease.getName());
             }
             dese.setName(disease.getName());
             dese.setCategory(disease.getCategory());
@@ -96,7 +108,8 @@ public class DiseaseService {
      * @param categoryId 分类 ID
      * @return 返回该分类下的所有疾病信息列表
      */
-    public List<Disease> getDiseasesByCategoryId(ObjectId categoryId) {
+    public List<Disease> findDiseasesByCategoryId(ObjectId categoryId) throws IdNotFoundException {
+        if(!categoryRepository.findById(categoryId).isPresent()) throw new IdNotFoundException("对应病种不存在");
         return diseaseRepository.findByCategoryId(categoryId);
     }
 

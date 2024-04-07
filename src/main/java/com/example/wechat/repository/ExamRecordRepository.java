@@ -21,4 +21,7 @@ public interface ExamRecordRepository extends MongoRepository<ExamRecord, Object
 
     @Query("{'exam.$id': ?0}")
     List<ExamRecord> findByExamId(ObjectId examId);
+
+    @Query("{'user.$id': ?0}")
+    List<ExamRecord> findByUserId(ObjectId userObjId);
 }

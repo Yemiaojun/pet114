@@ -75,20 +75,20 @@ public class DrugController {
     })
     @PutMapping("/updateDrug")
     public ResponseEntity<String> updateDrug(@ApiParam(value = "药品信息", required = true) @RequestBody Drug drug, HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
 
         // 确认用户已登录且具有管理员权限
-        if ("2".equals(userAuth)) {
-            Optional<Drug> updatedDrug = drugService.updateDrug(drug);
-            if (updatedDrug.isPresent()) {
+        if (userIdStr != null && "2".equals(userAuth)) {
+            try{
+                Optional<Drug> updatedDrug = drugService.updateDrug(drug);
                 return ResponseEntity.ok(Result.okGetStringByData("药品更新成功", updatedDrug.get()));
-            } else {
-                return ResponseEntity.badRequest().body(Result.errorGetString("药品更新失败，药品可能不存在"));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
             }
-        } else {
-            // 用户未登录或不具备管理员权限
-            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备更新权限"));
         }
+
+        else return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备添加权限"));
     }
 
 
@@ -141,7 +141,7 @@ public class DrugController {
             @ApiResponse(code = 200, message = "获取药品信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
-    @GetMapping("/searchDrugByName")
+    @GetMapping("/findDrugsByName")
     public ResponseEntity<String> findDrugByName(
             @ApiParam(name = "name", value = "药品名称", required = true, example = "john") @RequestParam("name") String name,
             HttpSession session) {
@@ -173,7 +173,7 @@ public class DrugController {
     public ResponseEntity<String> findAllDrugs(HttpSession session) {
         // 检查用户登录
         String userId = (String) session.getAttribute("userId");
-        if (!"1".equals(userId)) {
+        if (userId == null) {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
