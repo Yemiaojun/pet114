@@ -9,6 +9,7 @@ import com.example.wechat.model.Category;
 import com.example.wechat.model.Department;
 import com.example.wechat.model.Facility;
 import com.example.wechat.model.Role;
+import com.example.wechat.repository.DepartmentRepository;
 import com.example.wechat.repository.RoleRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class RoleService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private DepartmentService departmentService;
 
 
     /**
@@ -63,6 +67,22 @@ public class RoleService {
             throw new IdNotFoundException("对应角色不存在");
         }
         roleRepository.delete(existedRole.get());
+
+
+        //移除department中的对应roleId
+        List<Department> departments = departmentService.findAllDepartments();
+        for(Department department : departments){
+            List<Role> roles = department.getRoleList();
+            for(Role role : roles){
+                if(role.getId().equals(id)){
+                    roles.remove(role);
+                    department.setRoleList(roles);
+                    departmentService.updateDepartment(department);
+                    break;
+                }
+            }
+      
+        }
         return existedRole;
     }
 
