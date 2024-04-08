@@ -117,7 +117,9 @@ public class QuestionService {
         } else {
             questions = findAllVisibleQuestions();
         }
-
+        if(n<=0){
+            throw new DefaultException("非法的参数");
+        }
         // 打乱问题列表并取前n个
         Collections.shuffle(questions);
         return questions.stream().limit(n).collect(Collectors.toList());
