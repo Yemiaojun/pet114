@@ -193,6 +193,10 @@ public class UserController {
         String currentPassword = payload.get("currentPassword");
         String newPassword = payload.get("newPassword");
 
+        if (newPassword.length() < 5 || !newPassword.matches(".*[a-zA-Z]+.*")) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("密码必须至少为5位，并且至少包含一个字母"));
+        }
+
         // 确认会话中的用户ID与提供的用户名匹配，然后尝试修改密码
         Optional<User> userOptional = userService.findUserById(new ObjectId(userIdStr));
         if (userOptional.isPresent() && userOptional.get().getUsername().equals(username) &&
@@ -226,9 +230,16 @@ public class UserController {
         String securityAnswer = body.get("securityAnswer");
         String newPassword = body.get("newPassword");
 
+
         if(username == null || securityAnswer == null || newPassword == null) {
             return ResponseEntity.badRequest().body(Result.errorGetString("请求参数不完整"));
         }
+
+        if (newPassword.length() < 5 || !newPassword.matches(".*[a-zA-Z]+.*")) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("密码必须至少为5位，并且至少包含一个字母"));
+        }
+
+
 
         boolean updateSuccess = userService.updatePasswordIfSecurityAnswerMatches(username, securityAnswer, newPassword);
 
@@ -259,11 +270,16 @@ public class UserController {
         String userId = body.get("userId");
         String newPassword = body.get("newPassword");
 
+
+
         // 检查参数完整性
         if (userId == null || newPassword == null) {
             return ResponseEntity.badRequest().body(Result.errorGetString("请求参数不完整"));
         }
 
+        if (newPassword.length() < 5 || !newPassword.matches(".*[a-zA-Z]+.*")) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("密码必须至少为5位，并且至少包含一个字母"));
+        }
         // 尝试将字符串ID转换为ObjectId，以便与数据库操作兼容
         try {
             ObjectId objectId = new ObjectId(userId);
