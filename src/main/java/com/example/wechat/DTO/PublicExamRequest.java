@@ -3,6 +3,7 @@ package com.example.wechat.DTO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.Date;
 import java.util.List;
@@ -28,10 +29,8 @@ public class PublicExamRequest {
     @ApiModelProperty(value = "分数", required = true, example = "100")
     private Integer score;
 
+    @Getter
     @ApiModelProperty(value = "是否所有人都可以参加", required = true, example = "true")
-    private boolean everyone;
+    private Boolean everyone;
 
-    public boolean getEveryone() {
-        return everyone;
-    }
 }

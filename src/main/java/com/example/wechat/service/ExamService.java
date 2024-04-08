@@ -41,6 +41,9 @@ public class ExamService {
     }
 
     public Exam holdPrivateExam(String name, List<String> questionIds, Date startTime, Date endTime, Integer score, String userId) {
+        if (name == null || questionIds == null || startTime == null || endTime == null || score == null || userId == null) {
+            throw new DefaultException("参数不完整");
+        }
         Exam newExam = new Exam();
         newExam.setName(name);
         List<Question> questionList = convertQuestionIdsToQuestions(questionIds);
@@ -73,7 +76,10 @@ public class ExamService {
         return examRepository.save(newExam);
     }
 
-    public Exam holdPublicExam(String name, List<String> questionIds, List<String> whiteListUserIds, Date startTime, Date endTime, Integer score, String holderUserId, boolean everyone) {
+    public Exam holdPublicExam(String name, List<String> questionIds, List<String> whiteListUserIds, Date startTime, Date endTime, Integer score, String holderUserId, Boolean everyone) {
+        if (name == null || questionIds == null || startTime == null || endTime == null || score == null || holderUserId == null || everyone == null) {
+            throw new DefaultException("参数不完整");
+        }
         Exam newExam = new Exam();
         newExam.setName(name);
         // 转换questionIds到Question的List，逻辑同前
