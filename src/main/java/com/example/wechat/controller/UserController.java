@@ -1,5 +1,6 @@
 package com.example.wechat.controller;
 
+import com.example.wechat.DTO.RegisterRequestDTO;
 import com.example.wechat.service.FileStorageService;
 import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
@@ -39,6 +40,34 @@ public class UserController {
         }
         user.setPassword(null); // 为了安全，不返回密码信息
         return ResponseEntity.ok(Result.okGetStringByData("用户添加成功", user));
+    }
+
+    @ApiOperation(value = "注册新用户", notes = "注册新用户，需要提供用户名、密码、确认密码、电子邮件、安全问题及其答案")
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody RegisterRequestDTO request) {
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("两次输入的密码不一致"));
+        }
+
+        if (request.getPassword().length() < 5 || !request.getPassword().matches(".*[a-zA-Z]+.*")) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("密码必须至少为5位，并且至少包含一个字母"));
+        }
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword()); // 在实际应用中应进行加密处理
+        user.setEmail(request.getEmail());
+        user.setSecurityQuestion(request.getSecurityQuestion());
+        user.setSecurityQuestionAnswer(request.getSecurityQuestionAnswer());
+        user.setAuth("1"); // 默认权限
+        user.setAvatarUrl("/file/headpic/default.png"); // 默认头像
+
+        Optional<User> isUserAdded = userService.addUser(user);
+        if (!isUserAdded.isPresent()) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户名已存在"));
+        }
+
+        return ResponseEntity.ok(Result.okGetString("注册成功"));
     }
 
     @ApiOperation(value = "用户登录", notes = "用户登录接口")
@@ -306,7 +335,7 @@ public class UserController {
             @ApiResponse(code = 403, message = "无管理员权限"),
             @ApiResponse(code = 404, message = "用户未找到")
     })
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/deleteUser/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable String userId, HttpSession session) {
         String userAuth = (String) session.getAttribute("authLevel");
         if (userAuth == null || !"2".equals(userAuth)) {
