@@ -22,7 +22,6 @@ import java.util.Optional;
 
 
 @RestController
-@CrossOrigin
 @RequestMapping("/procedure")
 public class ProcedureController {
 

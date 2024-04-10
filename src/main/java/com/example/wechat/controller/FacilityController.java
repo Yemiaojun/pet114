@@ -21,7 +21,6 @@ import java.util.Optional;
  * 控制器类用于处理设备相关的请求和操作。
  */
 @RestController
-@CrossOrigin
 @RequestMapping("/facility")
 public class FacilityController {
 

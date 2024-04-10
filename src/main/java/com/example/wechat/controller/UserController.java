@@ -22,7 +22,6 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin
 
 public class UserController {
     @Autowired
