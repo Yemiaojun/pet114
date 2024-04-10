@@ -60,7 +60,7 @@ public class UserController {
         user.setSecurityQuestion(request.getSecurityQuestion());
         user.setSecurityQuestionAnswer(request.getSecurityQuestionAnswer());
         user.setAuth("1"); // 默认权限
-        user.setAvatarUrl("/file/headpic/default.png"); // 默认头像
+        user.setAvatarUrl("\\file\\headpic\\default.png"); // 默认头像
 
         Optional<User> isUserAdded = userService.addUser(user);
         if (!isUserAdded.isPresent()) {
