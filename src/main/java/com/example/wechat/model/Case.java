@@ -18,7 +18,12 @@ public class Case {
     @DBRef
     private Disease disease;
     private String name;
+    private String categoryId;
     private List<String> picUrlList;
     private List<String> videoUrlList;
     private List<String> textList;
+    private CaseCheck caseCheck;
+    private CasePlan casePlan;
+    private CaseResult caseResult;
+    private CaseTreat caseTreat;
 }
