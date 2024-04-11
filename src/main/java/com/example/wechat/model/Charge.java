@@ -5,18 +5,17 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.List;
 
+/**
+ *  收费管理
+ */
 @Data
 @Document
-public class Department {
+public class Charge {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private String name;
     private String info;
-    // @DBRef 简化功能，不要做科室的权限了。
-    // private List<Role> roleList;
 }

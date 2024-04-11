@@ -68,21 +68,20 @@ public class RoleService {
         }
         roleRepository.delete(existedRole.get());
 
-
+        // 不要去做Role了。
         //移除department中的对应roleId
-        List<Department> departments = departmentService.findAllDepartments();
-        for(Department department : departments){
-            List<Role> roles = department.getRoleList();
-            for(Role role : roles){
-                if(role.getId().equals(id)){
-                    roles.remove(role);
-                    department.setRoleList(roles);
-                    departmentService.updateDepartment(department);
-                    break;
-                }
-            }
-      
-        }
+        //List<Department> departments = departmentService.findAllDepartments();
+        //for(Department department : departments){
+        //    List<Role> roles = department.getRoleList();
+        //    for(Role role : roles){
+        //        if(role.getId().equals(id)){
+        //            roles.remove(role);
+        //            department.setRoleList(roles);
+        //            departmentService.updateDepartment(department);
+        //            break;
+        //        }
+        //    }
+        // }
         return existedRole;
     }
 

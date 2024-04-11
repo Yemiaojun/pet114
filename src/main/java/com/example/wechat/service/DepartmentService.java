@@ -121,7 +121,8 @@ public class DepartmentService {
             }
             department_editing.setName(department.getName());
             department_editing.setInfo(department.getInfo());
-            department_editing.setRoleList(department.getRoleList());
+            // 不要去做Role了。
+            // department_editing.setRoleList(department.getRoleList());
 
             return Optional.of(departmentRepository.save(department_editing));
         }
@@ -169,14 +170,15 @@ public class DepartmentService {
     public List<Department> findDepartmentByRoleId(ObjectId id) throws  IdNotFoundException{
         List<Department> departments = findAllDepartments();
         for(Department department : departments){
-            List<Role> roles = department.getRoleList();
+            // 不要去做Role了。
+            // List<Role> roles = department.getRoleList();
             boolean flag = false;
-            for(Role role : roles){
-                if(role.getId().equals(id)){
-                    flag = true;
-                    break;
-                }
-            }
+            // for(Role role : roles){
+            //    if(role.getId().equals(id)){
+            //        flag = true;
+            //        break;
+            //    }
+            // }
             if(!flag) departments.remove(department);
         }
         return departments;
