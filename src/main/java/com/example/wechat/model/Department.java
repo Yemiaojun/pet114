@@ -17,6 +17,6 @@ public class Department {
     private ObjectId id;
     private String name;
     private String info;
-    @DBRef
-    private List<Role> roleList;
+    // @DBRef 简化功能，不要做科室的权限了。
+    // private List<Role> roleList;
 }
