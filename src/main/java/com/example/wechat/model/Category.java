@@ -14,4 +14,12 @@ public class Category {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private String name;
+
+    public Category(String name)
+    {
+        this.name=name;
+    }
+    public Category()
+    {
+    }
 }

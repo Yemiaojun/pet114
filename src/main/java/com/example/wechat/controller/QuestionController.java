@@ -1,10 +1,12 @@
 package com.example.wechat.controller;
 
 import com.example.wechat.DTO.QuestionAnswersDTO;
+import com.example.wechat.DTO.QuestionImportDTO;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
@@ -303,6 +305,24 @@ public class QuestionController {
 
         questionService.checkQuestionAnswers(questionAnswersDTO.getAnswerList(), questionAnswersDTO.getQuestionList(), questionAnswersDTO.getExamId(), userId);
         return ResponseEntity.ok(Result.okGetString("答案校验完成，记录已生成"));
+    }
+
+    @PostMapping("/importQuestions")
+    public ResponseEntity<String> importQuestions(
+            HttpSession session) {
+        String userAuth = (String) session.getAttribute("authLevel");
+
+        if (!"2".equals(userAuth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("用户未登录或不具备管理员权限");
+        }
+
+        try {
+            questionService.importQuestions();
+            return ResponseEntity.ok("题目导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("题目导入失败: " + e.getMessage());
+        }
     }
 
 
