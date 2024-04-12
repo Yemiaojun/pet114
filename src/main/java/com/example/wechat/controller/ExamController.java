@@ -70,7 +70,7 @@ public class ExamController {
         if (!"2".equals(userAuthLevel)) {
             return ResponseEntity.status(403).body(Result.errorGetString("无权限创建公共比赛"));
         }
-
+        try{
         Exam createdExam = examService.holdPublicExam(
                 publicExamRequest.getName(),
                 publicExamRequest.getQuestionIds(),
@@ -81,9 +81,13 @@ public class ExamController {
                 (String) session.getAttribute("userId"),
                 publicExamRequest.getEveryone()
                 );
+            return ResponseEntity.ok(Result.okGetStringByData("公共比赛创建成功", createdExam));
+        }catch (Exception e){
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
 
 
-        return ResponseEntity.ok(Result.okGetStringByData("公共比赛创建成功", createdExam));
+
     }
 
     @ApiOperation(value = "根据ID获取考试详情", notes = "根据考试的ID返回考试详情")
