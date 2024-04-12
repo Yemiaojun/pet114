@@ -18,7 +18,7 @@ public class Procedure {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private Integer index;
-    private String text;
+    private String info;
 
     private List<String> picUrlList;
     private List<String> videoUrlList;

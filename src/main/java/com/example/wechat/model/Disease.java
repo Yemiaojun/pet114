@@ -17,5 +17,5 @@ public class Disease {
     private String name;
     @DBRef
     private Category category;
-    private String text;
+    private String info;
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -21,5 +22,7 @@ public class Role {
     private String name;
 
     @ApiModelProperty(value = "角色描述", example = "在宠物医院实习的一般医师")
-    private String text;
+    private String info;
+
+
 }

@@ -107,7 +107,7 @@ public class DiseaseService {
             }
             dese.setName(disease.getName());
             dese.setCategory(disease.getCategory());
-            dese.setText(disease.getText());
+            dese.setInfo(disease.getInfo());
             return Optional.of(diseaseRepository.save(dese));
         }
         throw new DefaultException("id不存在");
