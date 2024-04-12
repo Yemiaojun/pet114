@@ -10,7 +10,9 @@ import com.example.wechat.repository.DepartmentRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class DepartmentService {
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private FileService fileService;
 
 
     /**
@@ -182,6 +187,42 @@ public class DepartmentService {
             if(!flag) departments.remove(department);
         }
         return departments;
+    }
+
+    public String uploadFile(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        var existing = departmentRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应对象不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        List<String> files = updating.getFiles();
+        files.add(fileId);
+        updating.setFiles(files);
+
+        departmentRepository.save(updating);
+
+        return fileId;
+
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        var existing = departmentRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应实体不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        updating.setAvatar(fileId);
+        departmentRepository.save(updating);
+        return fileId;
+
     }
 
 

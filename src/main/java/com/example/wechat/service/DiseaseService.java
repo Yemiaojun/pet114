@@ -12,9 +12,11 @@ import com.example.wechat.repository.DiseaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.bson.types.ObjectId;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * DiseaseService 提供了对 Disease 实体的操作服务。
@@ -30,6 +32,9 @@ public class DiseaseService {
 
     @Autowired
     private CaseRepository caseRepository;
+
+    @Autowired
+    private FileService fileService;
 
 
     /**
@@ -162,6 +167,46 @@ public class DiseaseService {
         Optional<Disease> disease = diseaseRepository.findById(id);
         if(disease.isPresent()) return disease;
         else throw new IdNotFoundException("对应id不存在");
+    }
+
+    public String uploadFile(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        var existing = diseaseRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应对象不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        List<String> files = updating.getFiles();
+        files.add(fileId);
+        updating.setFiles(files);
+
+        diseaseRepository.save(updating);
+
+        return fileId;
+
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Disease> existing = diseaseRepository.findById(objectId);
+
+
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应实体不存在，无法更新图片");
+
+        Disease updating = existing.get();
+
+
+        updating.setAvatar(fileId);
+
+        diseaseRepository.save(updating);
+        return fileId;
+
     }
 
 }

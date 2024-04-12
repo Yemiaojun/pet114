@@ -1,13 +1,17 @@
 package com.example.wechat.service;
 
 import com.example.wechat.exception.DefaultException;
+import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.model.Case;
+import com.example.wechat.model.File;
 import com.example.wechat.repository.CaseRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +21,9 @@ public class CaseService {
 
     @Autowired
     private CaseRepository caseRepository;
+
+    @Autowired
+    private FileService fileService;
 
     // 添加病例的业务逻辑
     public Optional<Case> addCase(Case newCase) {
@@ -274,6 +281,42 @@ public class CaseService {
                 caseEntity.setVideoUrlList(videoList);
                 Case savedCase = caseRepository.save(caseEntity);
                 return Optional.of(savedCase);
+    }
+
+    public String uploadFile(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Case> existing = caseRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应case不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        List<String> files = updating.getFiles();
+        files.add(fileId);
+        updating.setFiles(files);
+
+        caseRepository.save(updating);
+
+        return fileId;
+
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Case> existing = caseRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应case不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        updating.setAvatar(fileId);
+        caseRepository.save(updating);
+        return fileId;
+
     }
 
 }

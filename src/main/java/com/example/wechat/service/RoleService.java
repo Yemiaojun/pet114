@@ -14,7 +14,9 @@ import com.example.wechat.repository.RoleRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +27,9 @@ public class RoleService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private DepartmentService departmentService;
+    private FileService fileService;
+
+
 
 
     /**
@@ -158,7 +162,41 @@ public class RoleService {
         }
     }
 
+    public String uploadFile(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        var existing = roleRepository.findById(objectId);
 
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应对象不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        List<String> files = updating.getFiles();
+        files.add(fileId);
+        updating.setFiles(files);
+
+        roleRepository.save(updating);
+
+        return fileId;
+
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        var existing = roleRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应实体不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        updating.setAvatar(fileId);
+        roleRepository.save(updating);
+        return fileId;
+
+    }
 
 
 

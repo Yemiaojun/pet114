@@ -3,6 +3,7 @@ package com.example.wechat.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -25,4 +26,10 @@ public class Procedure {
 
     @DBRef
     private Role role;
+
+    @ApiModelProperty(value = "相关文件id", required = true)
+    private List<String> files;
+
+    @ApiModelProperty(value = "头像id", required = true)
+    private String avatar;
 }

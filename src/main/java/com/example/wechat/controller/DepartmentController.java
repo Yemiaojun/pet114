@@ -11,6 +11,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import utils.Result;
 
 import javax.servlet.http.HttpSession;
@@ -216,6 +217,60 @@ public class DepartmentController {
         return ResponseEntity.ok(Result.okGetStringByData("获取部门信息成功", department));
     }
 
+    @ApiOperation(value= "上传文件")
+    @PostMapping("/uploadFile")
+    public ResponseEntity<String> uploadFiles(
+            @ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile multipartFile,
+            @ApiParam(value = "科室id", required = true) @RequestParam("id") String id,
+            HttpSession session
+    ){
+        // 检查会话中是否有用户ID和auth信息
+        String userIdStr = (String) session.getAttribute("userId");
+        String userAuth = (String) session.getAttribute("authLevel");
 
+
+
+        // 确认用户已登录且具有管理员权限
+        if (userIdStr != null && "2".equals(userAuth)) {
+            try{
+                departmentService.uploadFile(multipartFile,id);
+                return ResponseEntity.ok(Result.okGetString("上传文件成功"));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+
+            }
+        }
+        return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或无权限"));
+
+    }
+
+
+
+    @ApiOperation(value= "上传头像")
+    @PostMapping("/uploadAvatar")
+    public ResponseEntity<String> uploadAvatar(
+            @ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile multipartFile,
+            @ApiParam(value = "科室id", required = true) @RequestParam("id") String id,
+            HttpSession session
+    ){
+        // 检查会话中是否有用户ID和auth信息
+        String userIdStr = (String) session.getAttribute("userId");
+        String userAuth = (String) session.getAttribute("authLevel");
+
+
+
+        // 确认用户已登录且具有管理员权限
+        if (userIdStr != null && "2".equals(userAuth)) {
+            try{
+                departmentService.uploadAvatar(multipartFile,id);
+                return ResponseEntity.ok(Result.okGetString("上传文件成功"));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+
+            }
+        }
+        return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或无权限"));
+
+    }
 
 }

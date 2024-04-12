@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 @Data
 @Document
 @ApiModel(description = "角色信息")
@@ -24,5 +26,11 @@ public class Role {
     @ApiModelProperty(value = "角色描述", example = "在宠物医院实习的一般医师")
     private String info;
 
+
+    @ApiModelProperty(value = "相关文件id", required = true)
+    private List<String> files;
+
+    @ApiModelProperty(value = "头像id", required = true)
+    private String avatar;
 
 }

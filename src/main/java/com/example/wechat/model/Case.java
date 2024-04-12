@@ -2,6 +2,7 @@ package com.example.wechat.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -26,4 +27,10 @@ public class Case {
     private CasePlan casePlan;
     private CaseResult caseResult;
     private CaseTreat caseTreat;
+
+    @ApiModelProperty(value = "相关文件id", required = true)
+    private List<String> files;
+
+    @ApiModelProperty(value = "头像id", required = true)
+    private String avatar;
 }

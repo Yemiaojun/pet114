@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
+import java.util.List;
 
 @Data
 @Document
@@ -37,6 +40,14 @@ public class User {
 
     @ApiModelProperty(value = "安全问题答案", example = "Fluffy")
     private String securityQuestionAnswer;
+
+    @ApiModelProperty(value = "相关文件id", required = true)
+    @DBRef
+    private List<String> files;
+
+    @ApiModelProperty(value = "头像id", required = true)
+    @DBRef
+    private String avatar;
 
 
 }
