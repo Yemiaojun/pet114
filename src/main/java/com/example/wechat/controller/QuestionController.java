@@ -313,15 +313,15 @@ public class QuestionController {
         String userAuth = (String) session.getAttribute("authLevel");
 
         if (!"2".equals(userAuth)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("用户未登录或不具备管理员权限");
+            return ResponseEntity.status(402).body(Result.errorGetString("用户未登录或没有权限"));
         }
 
         try {
             questionService.importQuestions();
-            return ResponseEntity.ok("题目导入成功");
+            return ResponseEntity.ok(Result.okGetString("导入完成"));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("题目导入失败: " + e.getMessage());
+            return ResponseEntity.status(401).body("题目导入失败: " + e.getMessage());
         }
     }
 
