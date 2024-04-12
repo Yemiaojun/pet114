@@ -4,12 +4,15 @@ import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.format.NameChecker;
+import com.example.wechat.model.Assay;
 import com.example.wechat.model.Charge;
 import com.example.wechat.repository.ChargeRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +20,9 @@ import java.util.Optional;
 public class ChargeService {
     @Autowired
     private ChargeRepository chargeRepository;
+
+    @Autowired
+    private FileService fileService;
     /**
      * 添加一个新的科室信息。
      * @param charge 要添加的科室对象
@@ -104,5 +110,47 @@ public class ChargeService {
      */
     public List<Charge> findAllCharges() {
         return chargeRepository.findAll();
+    }
+
+    public Optional<Charge> findChargeById(String id){
+        Optional<Charge> existing = chargeRepository.findById(new ObjectId(id));
+        if(!existing.isPresent()) throw new IdNotFoundException("对应收据不存在");
+        else return existing;
+    }
+
+    public String uploadFile(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Charge> existing = chargeRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应收据不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        List<String> files = updating.getFiles();
+        files.add(fileId);
+        updating.setFiles(files);
+
+        chargeRepository.save(updating);
+
+        return fileId;
+
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Charge> existing = chargeRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应收据不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        updating.setAvatar(fileId);
+        chargeRepository.save(updating);
+        return fileId;
+
     }
 }

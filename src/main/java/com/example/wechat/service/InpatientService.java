@@ -4,12 +4,17 @@ import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.format.NameChecker;
+import com.example.wechat.model.Assay;
+import com.example.wechat.model.Charge;
 import com.example.wechat.model.Inpatient;
 import com.example.wechat.repository.InpatientRepository;
+import io.swagger.models.auth.In;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +22,9 @@ import java.util.Optional;
 public class InpatientService {
     @Autowired
     private InpatientRepository inpatientRepository;
+
+    @Autowired
+    private FileService fileService;
     /**
      * 添加一个新的科室信息。
      * @param inpatient 要添加的科室对象
@@ -104,5 +112,47 @@ public class InpatientService {
      */
     public List<Inpatient> findAllInpatients() {
         return inpatientRepository.findAll();
+    }
+
+    public Optional<Inpatient> findChargeById(String id){
+        Optional<Inpatient> existing = inpatientRepository.findById(new ObjectId(id));
+        if(!existing.isPresent()) throw new IdNotFoundException("对应收据不存在");
+        else return existing;
+    }
+
+    public String uploadFile(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Inpatient> existing = inpatientRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应assay不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        List<String> files = updating.getFiles();
+        files.add(fileId);
+        updating.setFiles(files);
+
+        inpatientRepository.save(updating);
+
+        return fileId;
+
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Inpatient> existing = inpatientRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应assay不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        updating.setAvatar(fileId);
+        inpatientRepository.save(updating);
+        return fileId;
+
     }
 }

@@ -5,11 +5,14 @@ import com.example.wechat.exception.IdNotFoundException;
 import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.format.NameChecker;
 import com.example.wechat.model.Assay;
+import com.example.wechat.model.Case;
 import com.example.wechat.repository.AssayRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +20,9 @@ import java.util.Optional;
 public class AssayService {
     @Autowired
     private AssayRepository assayRepository;
+
+    @Autowired
+    private FileService fileService;
     /**
      * 添加一个新的科室信息。
      *
@@ -109,5 +115,48 @@ public class AssayService {
      */
     public List<Assay> findAllAssays() {
         return assayRepository.findAll();
+    }
+
+    public Optional<Assay> findAssayById(String id)throws IdNotFoundException{
+        Optional<Assay> existing = assayRepository.findById(new ObjectId(id));
+        if(!existing.isPresent()) throw new IdNotFoundException("对应化验单不存在");
+        else return existing;
+    }
+
+
+    public String uploadFile(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Assay> existing = assayRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应assay不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        List<String> files = updating.getFiles();
+        files.add(fileId);
+        updating.setFiles(files);
+
+        assayRepository.save(updating);
+
+        return fileId;
+
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        Optional<Assay> existing = assayRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应assay不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        updating.setAvatar(fileId);
+        assayRepository.save(updating);
+        return fileId;
+
     }
 }
