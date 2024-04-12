@@ -41,13 +41,6 @@ public class User {
     @ApiModelProperty(value = "安全问题答案", example = "Fluffy")
     private String securityQuestionAnswer;
 
-    @ApiModelProperty(value = "相关文件id", required = true)
-    @DBRef
-    private List<String> files;
-
-    @ApiModelProperty(value = "头像id", required = true)
-    @DBRef
-    private String avatar;
 
 
 }

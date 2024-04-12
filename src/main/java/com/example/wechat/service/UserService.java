@@ -202,41 +202,7 @@ public class UserService {
     }
 
 
-    public String uploadFile(MultipartFile file, String id)throws IOException {
-        String fileId = fileService.uploadFile(file);
-        ObjectId objectId = new ObjectId(id);
-        var existing = userRepository.findById(objectId);
 
-        //存在性检查
-        if (!existing.isPresent()) throw new IdNotFoundException("对应对象不存在，无法更新图片");
-
-        var updating = existing.get();
-
-        List<String> files = updating.getFiles();
-        files.add(fileId);
-        updating.setFiles(files);
-
-        userRepository.save(updating);
-
-        return fileId;
-
-    }
-
-    public String uploadAvatar(MultipartFile file, String id)throws IOException {
-        String fileId = fileService.uploadFile(file);
-        ObjectId objectId = new ObjectId(id);
-        var existing = userRepository.findById(objectId);
-
-        //存在性检查
-        if (!existing.isPresent()) throw new IdNotFoundException("对应实体不存在，无法更新图片");
-
-        var updating = existing.get();
-
-        updating.setAvatar(fileId);
-        userRepository.save(updating);
-        return fileId;
-
-    }
 
 
 
