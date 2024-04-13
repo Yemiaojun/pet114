@@ -5,6 +5,7 @@ import com.example.wechat.DTO.PublicExamRequest;
 import com.example.wechat.exception.DefaultException;
 import com.example.wechat.model.Exam;
 import com.example.wechat.model.ExamRecord;
+import com.example.wechat.model.Question;
 import com.example.wechat.service.ExamRecordService;
 import com.example.wechat.service.ExamService;
 import io.swagger.annotations.ApiOperation;
@@ -343,6 +344,28 @@ public class ExamController {
         } else {
             return ResponseEntity.ok(Result.okGetStringByData("获取考试记录成功", records));
         }
+
+    }
+
+    @ApiOperation(value = "获取对应id的所有Question", notes = "根据考试ID获取所有考试记录，并可指定排序方式,如果排序方式为score则按分数降序")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取考试记录成功"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 404, message = "考试记录未找到")
+    })
+    @GetMapping("/getQuestionsOf")
+    public ResponseEntity<String> getQuestionsByExamId(
+            @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Result.errorGetString("用户未登录"));
+        }
+
+        List<Question> questions = examService.findQuestionByExamId(examId);
+
+        return ResponseEntity.ok(Result.okGetStringByData("获取考题成功", questions));
+
 
     }
 

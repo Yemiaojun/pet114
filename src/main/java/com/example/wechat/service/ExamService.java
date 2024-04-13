@@ -276,6 +276,11 @@ public class ExamService {
         }
     }
 
+     public List<Question> findQuestionByExamId(String id){
+        Exam exam = examRepository.findById(new ObjectId(id)).get();
+        return exam.getQuestionList();
+     }
+
 
 
 }
