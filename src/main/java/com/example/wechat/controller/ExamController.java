@@ -20,6 +20,8 @@ import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
 import utils.Result;
+
+import java.util.Map;
 import java.util.Optional;
 @RestController
 @RequestMapping("/exams")
@@ -144,8 +146,9 @@ public class ExamController {
     })
     @PostMapping("/setExamStatusToDeleted")
     public ResponseEntity<String> setExamStatusToDeleted(
-            @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
+            @ApiParam(value = "考试ID", required = true) @RequestBody Map<String, String> payload,
             HttpSession session) {
+        String examId = payload.get("examId");
         String userIdStr = (String) session.getAttribute("userId");
         String userAuth = (String) session.getAttribute("authLevel");
 

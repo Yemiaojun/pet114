@@ -1,5 +1,6 @@
 package com.example.wechat.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,9 +22,11 @@ public class PublicExamRequest {
     private List<String> whiteListUserIds;
 
     @ApiModelProperty(value = "开始时间", required = true, example = "2023-01-01T10:00:00.000+00:00")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private Date startTime;
 
     @ApiModelProperty(value = "结束时间", required = true, example = "2023-01-01T12:00:00.000+00:00")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private Date endTime;
 
     @ApiModelProperty(value = "分数", required = true, example = "100")
