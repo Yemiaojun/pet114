@@ -1,21 +1,9 @@
 package com.example.wechat.service;
 
-import com.example.wechat.exception.DefaultException;
-import com.example.wechat.model.Exam;
 import com.example.wechat.model.ExamRecord;
-import com.example.wechat.model.Question;
-import com.example.wechat.model.User;
 import com.example.wechat.repository.ExamRecordRepository;
-import com.example.wechat.repository.ExamRepository;
-import com.example.wechat.repository.QuestionRepository;
-import com.example.wechat.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,5 +24,23 @@ public class ExamRecordService {
         }
 
         return records;
+    }
+
+    public List<ExamRecord> findExamRecordsByUserId(String userId, String sort) {
+        ObjectId id = new ObjectId(userId);
+        List<ExamRecord> records = examRecordRepository.findByUserId(id);
+
+        // 如果sort参数为"score"，则按照score降序排序
+        if ("score".equals(sort)) {
+            records.sort(Comparator.comparingInt(ExamRecord::getScore).reversed());
+        }
+
+        return records;
+    }
+    public Optional<ExamRecord> findExamRecordsById(String Id) {
+        ObjectId id = new ObjectId(Id);
+        Optional<ExamRecord> record = examRecordRepository.findById(id);
+
+        return record;
     }
 }

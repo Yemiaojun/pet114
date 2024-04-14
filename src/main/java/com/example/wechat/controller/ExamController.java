@@ -369,6 +369,56 @@ public class ExamController {
 
     }
 
+    @ApiOperation(value = "获取用户的考试记录", notes = "根据用户ID获取该用户的所有考试记录，并可按分数排序")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取考试记录成功"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 404, message = "考试记录未找到")
+    })
+    @GetMapping("/getExamRecordsByUserId")
+    public ResponseEntity<String> getExamRecordsByUserId(
+            @ApiParam(value = "用户ID", required = true) @RequestParam String userId,
+            @ApiParam(value = "排序方式", required = false) @RequestParam(required = false, defaultValue = "none") String sort,
+            HttpSession session) {
+
+        // 检查用户登录状态
+        if (session.getAttribute("userId") == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+
+        List<ExamRecord> records = examRecordService.findExamRecordsByUserId(userId, sort);
+        if (records.isEmpty()) {
+            return ResponseEntity.status(404).body(Result.errorGetString("考试记录未找到"));
+        } else {
+            return ResponseEntity.ok(Result.okGetStringByData("获取考试记录成功", records));
+        }
+    }
+
+    @ApiOperation(value = "获取单个考试记录详情", notes = "根据考试记录ID获取具体的考试记录")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取考试记录详情成功"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 404, message = "考试记录未找到")
+    })
+    @GetMapping("/getExamRecordById")
+    public ResponseEntity<String> getExamRecordById(
+            @ApiParam(value = "考试记录ID", required = true) @RequestParam String recordId,
+            HttpSession session) {
+
+        // 检查用户登录状态
+        if (session.getAttribute("userId") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Result.errorGetString("用户未登录"));
+        }
+
+        Optional<ExamRecord> recordOpt = examRecordService.findExamRecordsById(recordId);
+        if (recordOpt.isPresent()) {
+            return ResponseEntity.ok(Result.okGetStringByData("获取考试记录详情成功", recordOpt.get()));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.errorGetString("考试记录未找到"));
+        }
+    }
+
+
 
 
 
