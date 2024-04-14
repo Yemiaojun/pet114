@@ -183,7 +183,9 @@ public class ExamService {
         if (participatable != null && participatable) {
             query.addCriteria(new Criteria().orOperator(
                     Criteria.where("everyone").is(true),
-                    Criteria.where("whiteList.$id").is(userId),
+                    Criteria.where("whiteList.$id").is(userId)
+
+            ).andOperator(
                     Criteria.where("status").is("进行中")
             ));
         }
