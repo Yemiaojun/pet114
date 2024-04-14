@@ -281,6 +281,15 @@ public class ExamService {
         return exam.getQuestionList();
      }
 
+    public boolean isUserAParticipant(String examId, String userId) {
+        Optional<Exam> exam = examRepository.findById(new ObjectId(examId));
+        if (exam.isPresent()) {
+            return exam.get().getParticipantList().stream()
+                    .anyMatch(user -> user.getId().equals(new ObjectId(userId)));
+        }
+        return false;
+    }
+
 
 
 }

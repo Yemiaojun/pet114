@@ -8,6 +8,7 @@ import com.example.wechat.model.ExamRecord;
 import com.example.wechat.model.Question;
 import com.example.wechat.service.ExamRecordService;
 import com.example.wechat.service.ExamService;
+import com.example.wechat.service.QuestionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -18,12 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import utils.Result;
 
-import java.util.Map;
-import java.util.Optional;
 @RestController
 @RequestMapping("/exams")
 public class ExamController {
@@ -33,6 +33,9 @@ public class ExamController {
 
     @Autowired
     private ExamRecordService examRecordService;
+
+    @Autowired
+    QuestionService questionService;
 
     @ApiOperation(value="创建私人比赛", notes = "允许用户创建一个私人的比赛")
     @ApiResponses({
@@ -48,9 +51,15 @@ public class ExamController {
             return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
         }
 
+        List<Question> sessionQuestions = (List<Question>) session.getAttribute("sessionQuestions");
+        if (sessionQuestions == null || sessionQuestions.isEmpty()) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("会话中没有题目，无法创建考试"));
+        }
+
+        List<String> questionIds = sessionQuestions.stream().map(Question::getId).map(ObjectId::toString).collect(Collectors.toList());
         Exam createdExam = examService.holdPrivateExam(
                 privateExamRequest.getName(),
-                privateExamRequest.getQuestionIds(),
+                questionIds,
                 privateExamRequest.getStartTime(),
                 privateExamRequest.getEndTime(),
                 privateExamRequest.getScore(),
@@ -70,13 +79,21 @@ public class ExamController {
             HttpSession session) {
         String userAuthLevel = (String) session.getAttribute("authLevel");
 
+
         if (!"2".equals(userAuthLevel)) {
             return ResponseEntity.status(403).body(Result.errorGetString("无权限创建公共比赛"));
         }
+
+
         try{
-        Exam createdExam = examService.holdPublicExam(
+            List<Question> sessionQuestions = (List<Question>) session.getAttribute("sessionQuestions");
+            if (sessionQuestions == null || sessionQuestions.isEmpty()) {
+                return ResponseEntity.badRequest().body(Result.errorGetString("会话中没有题目，无法创建考试"));
+            }
+            List<String> questionIds = sessionQuestions.stream().map(Question::getId).map(ObjectId::toString).collect(Collectors.toList());
+            Exam createdExam = examService.holdPublicExam(
                 publicExamRequest.getName(),
-                publicExamRequest.getQuestionIds(),
+                questionIds,
                 publicExamRequest.getWhiteListUserIds(),
                 publicExamRequest.getStartTime(),
                 publicExamRequest.getEndTime(),
@@ -420,6 +437,71 @@ public class ExamController {
             return ResponseEntity.ok(Result.okGetStringByData("获取考试记录成功", records));
         }
     }
+
+    @ApiOperation(value = "检查用户是否是考试参加者", notes = "检查当前会话的用户是否在指定考试的参加者列表中")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "检查完成"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 404, message = "考试未找到")
+    })
+    @GetMapping("/{examId}/checkParticipant")
+    public ResponseEntity<String> checkIfUserIsParticipant(
+            @ApiParam(value = "考试ID", required = true) @PathVariable String examId,
+            HttpSession session) {
+
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Result.errorGetString("用户未登录"));
+        }
+
+        boolean isParticipant = examService.isUserAParticipant(examId, userId);
+        if (isParticipant) {
+            return ResponseEntity.ok(Result.okGetStringByData("用户是参加者", true));
+        } else {
+            return ResponseEntity.ok(Result.okGetStringByData("用户不是参加者", false));
+        }
+    }
+
+    @ApiOperation(value = "添加题目到会话列表", notes = "将选定的题目添加到当前会话的题目列表中")
+    @PostMapping("/addQuestionToSession")
+    public ResponseEntity<String> addQuestionToSession(
+            @ApiParam(value = "题目ID", required = true) @RequestParam String questionId,
+            HttpSession session) {
+
+
+        Question question = questionService.findQuestionById(questionId).orElse(null);
+        if (question == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.errorGetString("题目未找到"));
+        }
+
+        List<Question> sessionQuestions = (List<Question>) session.getAttribute("sessionQuestions");
+        if (sessionQuestions == null) {
+            sessionQuestions = new ArrayList<>();
+        }
+        sessionQuestions.add(question);
+        session.setAttribute("sessionQuestions", sessionQuestions);
+
+        return ResponseEntity.ok(Result.okGetString("题目已添加到会话"));
+    }
+
+    @ApiOperation(value = "获取会话中的题目列表", notes = "返回当前会话中存储的所有题目")
+    @GetMapping("/getSessionQuestions")
+    public ResponseEntity<String> getSessionQuestions(HttpSession session) {
+        List<Question> sessionQuestions = (List<Question>) session.getAttribute("sessionQuestions");
+        if (sessionQuestions == null || sessionQuestions.isEmpty()) {
+            return ResponseEntity.ok(Result.okGetStringByData("会话中没有题目", Collections.emptyList()));
+        }
+        return ResponseEntity.ok(Result.okGetStringByData("获取会话中的题目成功", sessionQuestions));
+    }
+
+    @ApiOperation(value = "清空会话中的题目列表", notes = "从当前会话中移除所有已添加的题目")
+    @PostMapping("/clearSessionQuestions")
+    public ResponseEntity<String> clearSessionQuestions(HttpSession session) {
+        session.removeAttribute("sessionQuestions");
+        return ResponseEntity.ok(Result.okGetString("会话中的题目列表已清空"));
+    }
+
+
 
 
 
