@@ -501,6 +501,27 @@ public class ExamController {
         return ResponseEntity.ok(Result.okGetString("会话中的题目列表已清空"));
     }
 
+    @ApiOperation(value = "从会话中删除题目", notes = "根据题目ID，从会话中的题目列表中移除指定的题目")
+    @DeleteMapping("/removeQuestionFromSession")
+    public ResponseEntity<String> removeQuestionFromSession(
+            @ApiParam(value = "题目ID", required = true) @RequestParam String questionId,
+            HttpSession session) {
+
+        List<Question> sessionQuestions = (List<Question>) session.getAttribute("sessionQuestions");
+        if (sessionQuestions == null || sessionQuestions.isEmpty()) {
+            return ResponseEntity.ok(Result.errorGetString("会话中没有题目或题目列表不存在"));
+        }
+
+        boolean removed = sessionQuestions.removeIf(q -> q.getId().toString().equals(questionId));
+        if (!removed) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.errorGetString("未找到该题目在会话中"));
+        }
+
+        session.setAttribute("sessionQuestions", sessionQuestions);
+        return ResponseEntity.ok(Result.okGetString("题目已从会话中移除"));
+    }
+
+
 
 
 
