@@ -298,31 +298,7 @@ public class ExamController {
         }
     }
 
-    @ApiOperation(value = "获取考试记录", notes = "根据考试ID获取所有考试记录，并可指定排序方式")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "获取考试记录成功"),
-            @ApiResponse(code = 401, message = "用户未登录"),
-            @ApiResponse(code = 404, message = "考试记录未找到")
-    })
-    @GetMapping("/getExamRecordsById")
-    public ResponseEntity<String> getExamRecords(
-            @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
-            @ApiParam(value = "排序方式", required = false) @RequestParam(required = false) String sort,
-            HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Result.errorGetString("用户未登录"));
-        }
-
-        List<ExamRecord> records = examRecordService.findExamRecordsByExamId(examId, sort);
-        if (records.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.errorGetString("考试记录未找到"));
-        } else {
-            return ResponseEntity.ok(Result.okGetStringByData("获取考试记录成功", records));
-        }
-    }
-
-    @ApiOperation(value = "获取考试记录", notes = "根据考试ID获取所有考试记录，并可指定排序方式,如果排序方式为score则按分数降序")
+    @ApiOperation(value = "获取考试记录", notes = "根据考试ID获取所有考试记录，并可指定排序方式（score）和状态")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取考试记录成功"),
             @ApiResponse(code = 401, message = "用户未登录"),
@@ -332,20 +308,22 @@ public class ExamController {
     public ResponseEntity<String> getExamRecordsByExamId(
             @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
             @ApiParam(value = "排序方式", required = false) @RequestParam(required = false) String sort,
+            @ApiParam(value = "状态", required = false) @RequestParam(required = false) String status,
             HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
+
+        if (session.getAttribute("userId") == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Result.errorGetString("用户未登录"));
         }
 
-        List<ExamRecord> records = examRecordService.findExamRecordsByExamId(examId, sort);
+        List<ExamRecord> records = examRecordService.findExamRecordsByExamId(examId, sort, status);
         if (records.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.errorGetString("考试记录未找到"));
         } else {
             return ResponseEntity.ok(Result.okGetStringByData("获取考试记录成功", records));
         }
-
     }
+
+
 
     @ApiOperation(value = "获取对应id的所有Question", notes = "根据考试ID获取所有考试记录，并可指定排序方式,如果排序方式为score则按分数降序")
     @ApiResponses({
@@ -369,7 +347,7 @@ public class ExamController {
 
     }
 
-    @ApiOperation(value = "获取用户的考试记录", notes = "根据用户ID获取该用户的所有考试记录，并可按分数排序")
+    @ApiOperation(value = "获取用户的考试记录", notes = "根据用户ID获取该用户的所有考试记录，并可按分数和状态排序")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取考试记录成功"),
             @ApiResponse(code = 401, message = "用户未登录"),
@@ -379,14 +357,14 @@ public class ExamController {
     public ResponseEntity<String> getExamRecordsByUserId(
             @ApiParam(value = "用户ID", required = true) @RequestParam String userId,
             @ApiParam(value = "排序方式", required = false) @RequestParam(required = false, defaultValue = "none") String sort,
+            @ApiParam(value = "状态", required = false) @RequestParam(required = false) String status,
             HttpSession session) {
 
-        // 检查用户登录状态
         if (session.getAttribute("userId") == null) {
             return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
         }
 
-        List<ExamRecord> records = examRecordService.findExamRecordsByUserId(userId, sort);
+        List<ExamRecord> records = examRecordService.findExamRecordsByUserId(userId, sort, status);
         if (records.isEmpty()) {
             return ResponseEntity.status(404).body(Result.errorGetString("考试记录未找到"));
         } else {
@@ -418,6 +396,30 @@ public class ExamController {
         }
     }
 
+    @ApiOperation(value = "获取用户的考试记录", notes = "根据用户ID获取该用户的所有考试记录，并可按分数和状态排序")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取考试记录成功"),
+            @ApiResponse(code = 401, message = "用户未登录"),
+            @ApiResponse(code = 404, message = "考试记录未找到")
+    })
+    @GetMapping("/getMyRecords")
+    public ResponseEntity<String> getMyRecords(
+            @ApiParam(value = "排序方式", required = false) @RequestParam(required = false, defaultValue = "none") String sort,
+            @ApiParam(value = "状态", required = false) @RequestParam(required = false) String status,
+            HttpSession session) {
+
+
+        if (session.getAttribute("userId") == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+        String userId= (String) session.getAttribute("userId");
+        List<ExamRecord> records = examRecordService.findExamRecordsByUserId(userId, sort, status);
+        if (records.isEmpty()) {
+            return ResponseEntity.status(404).body(Result.errorGetString("考试记录未找到"));
+        } else {
+            return ResponseEntity.ok(Result.okGetStringByData("获取考试记录成功", records));
+        }
+    }
 
 
 
