@@ -229,6 +229,14 @@ public class ExamService {
         Exam exam = examOpt.get();
         User user = userOpt.get();
 
+        if (!exam.isEveryone() && !exam.getWhiteList().contains(user)) {
+            throw new DefaultException("用户无权参加此考试");
+        }
+
+        if(!exam.getStatus().equals("进行中")){
+            throw new DefaultException("该考试不在进行中!");
+        }
+
         // 更新参加者列表
         if (!exam.getParticipantList().contains(user)) {
             exam.getParticipantList().add(user);

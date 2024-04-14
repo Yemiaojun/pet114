@@ -151,6 +151,13 @@ public class QuestionService {
             examRecord.setUser(user);
             examRecord.setScore(0); // 初始化得分为0
         }
+        if(examRecord.getStatus().equals("已完成")){
+            throw new DefaultException("你已经进行过此考试");
+        }
+
+        if(!exam.getStatus().equals("进行中")){
+            throw new DefaultException("该考试不在进行中");
+        }
 
         double totalScoreEarned = 0;
         int totalExamScore = exam.getScore();
