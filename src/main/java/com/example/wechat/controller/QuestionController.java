@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiParam;
 import utils.Result;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -80,9 +81,10 @@ public class QuestionController {
             @ApiResponse(code = 400, message = "问题隐藏失败，问题可能不存在或用户未登录/无权限")
     })
     @PutMapping("/hideQuestion")
-    public ResponseEntity<String> hideQuestion(@ApiParam(value = "问题ID", required = true) @RequestParam String questionId, HttpSession session) {
+    public ResponseEntity<String> hideQuestion(@ApiParam(value = "问题ID", required = true) @RequestBody Map<String, String> payload, HttpSession session) {
         String userAuth = (String) session.getAttribute("authLevel");
 
+        String questionId = payload.get("questionId");
         // 确认用户已登录且具有管理员权限
         if ("2".equals(userAuth)) {
             Optional<Question> hiddenQuestion = questionService.hideQuestion(questionId);
