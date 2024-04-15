@@ -42,8 +42,8 @@ public class ExamController {
             @ApiResponse(code = 200, message = "成功创建私人比赛"),
             @ApiResponse(code = 401, message = "用户未登录")
     })
-    @PostMapping("/holdPrivateExam")
-    public ResponseEntity<String> holdPrivateExam(
+    @PostMapping("/holdPrivateExam1")
+    public ResponseEntity<String> holdPrivateExam1(
             @RequestBody PrivateExamRequest privateExamRequest,
             HttpSession session) {
         String userId = (String) session.getAttribute("userId");
@@ -68,13 +68,37 @@ public class ExamController {
         return ResponseEntity.ok(Result.okGetStringByData("私人比赛创建成功", createdExam));
     }
 
+    @ApiOperation(value="创建私人比赛", notes = "允许用户创建一个私人的比赛")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "成功创建私人比赛"),
+            @ApiResponse(code = 401, message = "用户未登录")
+    })
+    @PostMapping("/holdPrivateExam")
+    public ResponseEntity<String> holdPrivateExam(
+            @RequestBody PrivateExamRequest privateExamRequest,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
+        }
+        Exam createdExam = examService.holdPrivateExam(
+                privateExamRequest.getName(),
+                privateExamRequest.getQuestionIds(),
+                privateExamRequest.getStartTime(),
+                privateExamRequest.getEndTime(),
+                privateExamRequest.getScore(),
+                userId);
+
+        return ResponseEntity.ok(Result.okGetStringByData("私人比赛创建成功", createdExam));
+    }
+
     @ApiOperation(value = "创建公共比赛", notes = "允许管理员用户创建一个公共的比赛")
     @ApiResponses({
             @ApiResponse(code = 200, message = "成功创建公共比赛"),
             @ApiResponse(code = 403, message = "用户无登录")
     })
-    @PostMapping("/holdPublicExam")
-    public ResponseEntity<String> holdPublicExam(
+    @PostMapping("/holdPublicExam1")
+    public ResponseEntity<String> holdPublicExam1(
             @RequestBody PublicExamRequest publicExamRequest,
             HttpSession session) {
         String userAuthLevel = (String) session.getAttribute("authLevel");
@@ -101,6 +125,44 @@ public class ExamController {
                 (String) session.getAttribute("userId"),
                 publicExamRequest.getEveryone()
                 );
+            return ResponseEntity.ok(Result.okGetStringByData("公共比赛创建成功", createdExam));
+        }catch (Exception e){
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+
+
+
+    }
+
+    @ApiOperation(value = "创建公共比赛", notes = "允许管理员用户创建一个公共的比赛")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "成功创建公共比赛"),
+            @ApiResponse(code = 403, message = "用户无登录")
+    })
+    @PostMapping("/holdPublicExam")
+    public ResponseEntity<String> holdPublicExam(
+            @RequestBody PublicExamRequest publicExamRequest,
+            HttpSession session) {
+        String userAuthLevel = (String) session.getAttribute("authLevel");
+
+
+        if (!"2".equals(userAuthLevel)) {
+            return ResponseEntity.status(403).body(Result.errorGetString("无权限创建公共比赛"));
+        }
+
+
+        try{
+
+            Exam createdExam = examService.holdPublicExam(
+                    publicExamRequest.getName(),
+                    publicExamRequest.getQuestionIds(),
+                    publicExamRequest.getWhiteListUserIds(),
+                    publicExamRequest.getStartTime(),
+                    publicExamRequest.getEndTime(),
+                    publicExamRequest.getScore(),
+                    (String) session.getAttribute("userId"),
+                    publicExamRequest.getEveryone()
+            );
             return ResponseEntity.ok(Result.okGetStringByData("公共比赛创建成功", createdExam));
         }catch (Exception e){
             return ResponseEntity.status(400).body(e.getMessage());
