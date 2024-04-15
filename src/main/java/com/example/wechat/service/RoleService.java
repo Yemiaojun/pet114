@@ -199,5 +199,10 @@ public class RoleService {
     }
 
 
+    public Optional<Role> findRoleByName(String name){
+       return roleRepository.findRoleByName(name);
+
+    }
+
 
 }
