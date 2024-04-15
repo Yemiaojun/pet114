@@ -1,18 +1,18 @@
 package com.example.wechat.repository;
 
+import com.example.wechat.model.Activity;
+import com.example.wechat.model.Inpatient;
 import com.example.wechat.model.Procedure;
-import com.example.wechat.model.Question;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface ProcedureRepository extends MongoRepository<Procedure, ObjectId> {
-
+public interface ActivityRepository extends MongoRepository<Activity, ObjectId> {
     @Query("{ 'role.$id': ?0 }")
-    List<Procedure> findByRoleId(ObjectId roleId);
+    List<Activity> findByRoleId(ObjectId roleId);
 
-    @Query("{ 'activity.$id': ?0 }")
-    List<Procedure> findByAcitivityId(ObjectId roleId);
+    Optional<Activity> findActivityByName(String name);
 }

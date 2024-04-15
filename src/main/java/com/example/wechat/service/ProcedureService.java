@@ -5,6 +5,7 @@ import com.example.wechat.exception.NameAlreadyExistedException;
 import com.example.wechat.exception.NameNotFoundException;
 import com.example.wechat.model.*;
 import com.example.wechat.repository.ProcedureRepository;
+import com.example.wechat.repository.RoleRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ public class ProcedureService {
 
     @Autowired
     private  FileService fileService;
+
+
 
     /**
      * 添加一个新的流程信息。
@@ -66,8 +69,22 @@ public class ProcedureService {
             throw new IdNotFoundException("对应流程不存在，无法删除");
         }
 
+
+        int index = procedure.getIndex();
+        ObjectId roleId = procedure.getRole().getId();
         //对删除进行持久化
         procedureRepository.delete(procedure);
+
+
+        //调整删除后排在当前步骤之后的所有步骤
+        List<Procedure> procedures = procedureRepository.findByRoleId(roleId);
+        for(Procedure p : procedures){
+            if(p.getIndex() > index){
+                p.setIndex(p.getIndex()-1);
+
+            }
+            procedureRepository.save(p);
+        }
         return existedProcedure;
     }
 
@@ -81,16 +98,18 @@ public class ProcedureService {
      */
     public Optional<Procedure> updateProcedure(Procedure procedure) throws IdNotFoundException,NameAlreadyExistedException{
         Optional<Procedure> procedureOriginal = procedureRepository.findById(procedure.getId());
-        Integer name = procedureOriginal.get().getIndex();
+        Integer index = procedureOriginal.get().getIndex();
         Role role = procedureOriginal.get().getRole();
         if(procedureOriginal.isPresent()){
            List<Procedure> procedures = procedureRepository.findByRoleId(procedure.getRole().getId());
 
-           //如果给流程换了名字，那么对该角色列表中的所有流程名字进行唯一性检查
-           if(!name.equals(procedure.getIndex())){
+           //如果给流程换了索引，原来索引之后的都-1，新索引之后的都+1
+           if(!index.equals(procedure.getIndex())){
+               int newIndex = procedure.getIndex();
                for (Procedure p: procedures){
-                   if (procedure.getIndex().equals(p.getIndex()) && !procedure.getId().equals(p.getId()))
-                       throw new NameAlreadyExistedException("该流程已存在");
+                   if(p.getIndex() > index) p.setIndex(p.getIndex()-1);
+                   if(p.getIndex() >= newIndex) p.setIndex(p.getIndex() + 1);
+                   procedureRepository.save(p);
                }
            }
 
@@ -101,6 +120,7 @@ public class ProcedureService {
                         throw new NameAlreadyExistedException("该流程已存在");
                 }
             }
+
 
 
 
