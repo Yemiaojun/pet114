@@ -108,4 +108,8 @@ public class ActivityService {
     public List<Activity> findAllActivities() {
         return activityRepository.findAll();
     }
+
+    public Optional<Activity> findActivityByName(String name){
+        return activityRepository.findActivityByName(name);
+    }
 }

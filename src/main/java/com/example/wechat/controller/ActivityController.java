@@ -2,6 +2,7 @@ package com.example.wechat.controller;
 
 import com.example.wechat.model.Activity;
 import com.example.wechat.model.Assay;
+import com.example.wechat.model.Role;
 import com.example.wechat.service.ActivityService;
 import com.example.wechat.service.AssayService;
 import io.swagger.annotations.*;
@@ -134,5 +135,32 @@ public class ActivityController {
         }
         List<Activity> activities = activityService.findAllActivities();
         return ResponseEntity.ok(Result.okGetStringByData("获取所有角色活动信息成功", activities));
+    }
+
+    /**
+     * 根据角色name获取活动信息。
+     *
+     * @param name 角色name
+     * @param session HTTP会话
+     * @return ResponseEntity 包含角色信息的响应实体
+     */
+    @ApiOperation(value = "根据角色id获取活动", notes = "返回对应id")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取所有活动信息成功"),
+            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+    })
+    @GetMapping("/findActivityByName")
+    public ResponseEntity<String> findActivityByName(
+            @ApiParam(name = "id", value = "角色name", required = true, example = "saisunwoiudoiu") @RequestParam("name") String name,
+            HttpSession session) {
+        // 检查用户权限
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+        }
+
+        Optional<Activity> activity = activityService.findActivityByName(name);
+        return ResponseEntity.ok(Result.okGetStringByData("获取活动信息成功", activity));
     }
 }
