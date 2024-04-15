@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/assay")
+@RequestMapping("/activity")
 public class ActivityController {
     @Autowired
     private ActivityService activityService;
@@ -29,7 +29,7 @@ public class ActivityController {
      * @return 添加成功后的角色活动信息
      */
     @ApiOperation(value = "添加角色活动", notes = "添加新的角色活动，需要管理员权限")
-    @PostMapping("/addAssay")
+    @PostMapping("/addActivity")
     public ResponseEntity<String> addActivity(
             @ApiParam(value = "角色活动信息", required = true) @RequestBody Activity activity,
             HttpSession session) {
