@@ -84,27 +84,27 @@ public class ActivityController {
     }
     /**
      * 更新化验信息。
-     * @param assay 要更新的化验信息
+     * @param activity 要更新的角色活动信息
      * @param session    HTTP 会话
      * @return 更新后的化验信息
      */
-    @ApiOperation(value = "更新化验信息", notes = "根据提供的化验信息更新化验信息，需要管理员权限")
+    @ApiOperation(value = "更新角色活动信息", notes = "根据提供的角色活动信息更新角色活动信息，需要管理员权限")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "化验更新成功"),
-            @ApiResponse(code = 400, message = "化验更新失败，化验可能不存在或用户未登录/无权限")
+            @ApiResponse(code = 200, message = "角色活动更新成功"),
+            @ApiResponse(code = 400, message = "角色活动更新失败，化验可能不存在或用户未登录/无权限")
     })
-    @PutMapping("/updateAssay")
-    public ResponseEntity<String> updateAssay(@ApiParam(value = "化验信息", required = true) @RequestBody Assay assay, HttpSession session) {
+    @PutMapping("/updateActivity")
+    public ResponseEntity<String> updateActivity(@ApiParam(value = "角色活动信息", required = true) @RequestBody Activity activity, HttpSession session) {
         String userAuth = (String) session.getAttribute("authLevel");
 
         // 确认用户已登录且具有管理员权限
         if ("2".equals(userAuth)) {
             try {
-                Optional<Assay> updatedAssay = assayService.updateAssay(assay);
-                if (updatedAssay.isPresent()) {
-                    return ResponseEntity.ok(Result.okGetStringByData("化验信息更新成功", updatedAssay.get()));
+                Optional<Activity> updatedActivity = activityService.updateActivity(activity);
+                if (updatedActivity.isPresent()) {
+                    return ResponseEntity.ok(Result.okGetStringByData("化验信息更新成功", updatedActivity.get()));
                 } else {
-                    return ResponseEntity.badRequest().body(Result.errorGetString("科室更新失败，科室可能不存在"));
+                    return ResponseEntity.badRequest().body(Result.errorGetString("角色活动更新失败，科室可能不存在"));
                 }
             } catch (Exception e) {
                 return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
@@ -115,24 +115,24 @@ public class ActivityController {
         }
     }
     /**
-     * 获取所有化验信息。
+     * 获取所有角色活动信息。
      * @param session HTTP 会话
      * @return 所有部门列表的 ResponseEntity
      */
-    @ApiOperation(value = "获取所有化验信息", notes = "返回所有化验列表，需要用户登录")
+    @ApiOperation(value = "获取所有角色活动信息", notes = "返回所有角色活动列表，需要用户登录")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "获取所有化验信息成功"),
+            @ApiResponse(code = 200, message = "获取所有角色活动信息成功"),
             @ApiResponse(code = 400, message = "用户未登录")
     })
-    @GetMapping("/findAllAssays")
-    public ResponseEntity<String> findAllAssays(HttpSession session) {
+    @GetMapping("/findAllActivities")
+    public ResponseEntity<String> findAllActivities(HttpSession session) {
         // 检查用户登录
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             // 用户未登录
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
-        List<Assay> assays = assayService.findAllAssays();
-        return ResponseEntity.ok(Result.okGetStringByData("获取所有科室信息成功", assays));
+        List<Activity> activities = activityService.findAllActivities();
+        return ResponseEntity.ok(Result.okGetStringByData("获取所有角色活动信息成功", activities));
     }
 }
