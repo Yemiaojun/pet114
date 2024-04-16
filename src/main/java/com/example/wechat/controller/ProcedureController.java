@@ -143,20 +143,20 @@ public class ProcedureController {
 
 
     /**
-     * 根据角色ID获取所有流程。
+     * 根据活动ID获取所有流程。
      *
-     * @param id 角色ID
+     * @param id 活动ID
      * @param session HTTP会话
      * @return ResponseEntity 包含流程列表信息的响应实体
      */
-    @ApiOperation(value = "根据角色id获取流程", notes = "返回对应流程列表")
+    @ApiOperation(value = "根据活动id获取流程", notes = "返回对应流程列表")
     @ApiResponses({
             @ApiResponse(code = 200, message = "获取所有设备信息成功"),
             @ApiResponse(code = 400, message = "用户未登录或角色id不存在")
     })
-    @GetMapping("/findProceduresByRoleId")
-    public ResponseEntity<String> findProceduresByRoleId(
-            @ApiParam(name = "id", value = "角色id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
+    @GetMapping("/findProceduresByActivityId")
+    public ResponseEntity<String> findProceduresByActivityId(
+            @ApiParam(name = "id", value = "活动id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
             HttpSession session) {
         // 检查用户登录
         String userId = (String) session.getAttribute("userId");
@@ -165,7 +165,7 @@ public class ProcedureController {
             return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
         }
 
-        List<Procedure> procedures = procedureService.findProcedureByRoleId(new ObjectId(id));
+        List<Procedure> procedures = procedureService.findProcedureByActivityId(new ObjectId(id));
         return ResponseEntity.ok(Result.okGetStringByData("获取部流程息成功", procedures));
     }
 

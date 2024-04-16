@@ -163,4 +163,34 @@ public class ActivityController {
         Optional<Activity> activity = activityService.findActivityByName(name);
         return ResponseEntity.ok(Result.okGetStringByData("获取活动信息成功", activity));
     }
+
+
+    /**
+     * 根据角色id获取活动信息。
+     *
+     * @param id 角色id
+     * @param session HTTP会话
+     * @return ResponseEntity 包含角色信息的响应实体
+     */
+    @ApiOperation(value = "根据角色id获取活动", notes = "返回对应id")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取所有活动信息成功"),
+            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+    })
+    @GetMapping("/findActivitiesByRoleId")
+    public ResponseEntity<String> findActivitiesByRoleId(
+            @ApiParam(name = "id", value = "角色id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id,
+            HttpSession session) {
+        // 检查用户权限
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+        }
+
+        List<Activity> activity = activityService.findActivityByRoleId(id);
+        return ResponseEntity.ok(Result.okGetStringByData("获取活动信息成功", activity));
+    }
+
+
 }

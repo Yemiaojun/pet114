@@ -26,8 +26,7 @@ public class Procedure {
     private List<String> picUrlList;
     private List<String> videoUrlList;
 
-    @DBRef
-    private Role role;
+
 
     @DBRef
     private Activity activity;

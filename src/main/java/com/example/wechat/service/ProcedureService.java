@@ -36,12 +36,12 @@ public class ProcedureService {
      * @throws NameNotFoundException 如果对应该角色对应步骤已经存在，则抛出 NameNotFoundException 异常
      */
     public Procedure addProcedure(Procedure procedure) throws NameAlreadyExistedException {
-        List<Procedure> existedProcedures = procedureRepository.findByRoleId(procedure.getRole().getId());
+        List<Procedure> existedProcedures = procedureRepository.findByActivityId(procedure.getActivity().getId());
 
         //如果当前角色有相同名字的流程，那么创建失败
         for (Procedure existedProcedure : existedProcedures){
-            if(existedProcedure.getIndex().equals(procedure.getIndex()))
-                throw new NameAlreadyExistedException("当前角色已存在该流程");
+            if(existedProcedure.getIndex() >= procedure.getIndex())
+                existedProcedure.setIndex(existedProcedure.getIndex()+1);
         }
 
         //保存到数据库
@@ -71,13 +71,13 @@ public class ProcedureService {
 
 
         int index = procedure.getIndex();
-        ObjectId roleId = procedure.getRole().getId();
+        ObjectId activityId = procedure.getActivity().getId();
         //对删除进行持久化
         procedureRepository.delete(procedure);
 
 
         //调整删除后排在当前步骤之后的所有步骤
-        List<Procedure> procedures = procedureRepository.findByRoleId(roleId);
+        List<Procedure> procedures = procedureRepository.findByActivityId(activityId);
         for(Procedure p : procedures){
             if(p.getIndex() > index){
                 p.setIndex(p.getIndex()-1);
@@ -99,9 +99,10 @@ public class ProcedureService {
     public Optional<Procedure> updateProcedure(Procedure procedure) throws IdNotFoundException,NameAlreadyExistedException{
         Optional<Procedure> procedureOriginal = procedureRepository.findById(procedure.getId());
         Integer index = procedureOriginal.get().getIndex();
-        Role role = procedureOriginal.get().getRole();
+        Activity activity = procedureOriginal.get().getActivity();
         if(procedureOriginal.isPresent()){
-           List<Procedure> procedures = procedureRepository.findByRoleId(procedure.getRole().getId());
+           List<Procedure> procedures = procedureRepository.findByActivityId(procedure.getActivity()
+                   .getId());
 
            //如果给流程换了索引，原来索引之后的都-1，新索引之后的都+1
            if(!index.equals(procedure.getIndex())){
@@ -113,13 +114,7 @@ public class ProcedureService {
                }
            }
 
-            //如果给流程换了角色，那么对该角色列表中的所有流程名字进行唯一性检查
-            if(!role.equals(procedure.getRole())){
-                for (Procedure p: procedures){
-                    if (procedure.getIndex().equals(p.getIndex()))
-                        throw new NameAlreadyExistedException("该流程已存在");
-                }
-            }
+
 
 
 
@@ -146,13 +141,13 @@ public class ProcedureService {
 
 
     /**
-     * 根据角色ID查找流程信息。
+     * 根据活动ID查找流程信息。
      *
-     * @param id 角色ID
+     * @param id 活动ID
      * @return 包含流程的列表对象，如果找到则返回角色对应的流程信息，否则返回空 Optional
      */
-    public List<Procedure> findProcedureByRoleId(ObjectId id) {
-        List<Procedure> procedures = procedureRepository.findByRoleId(id);
+    public List<Procedure> findProcedureByActivityId(ObjectId id) {
+        List<Procedure> procedures = procedureRepository.findByActivityId(id);
         // 使用Stream API进行排序
         return procedures.stream()
                 .sorted(Comparator.comparingInt(Procedure::getIndex))

@@ -61,7 +61,7 @@ public class ActivityService {
         activityRepository.delete(existed.get());
 
         //对procedure级联删除
-        List<Procedure>  procedures = procedureRepository.findByAcitivityId(id);
+        List<Procedure>  procedures = procedureRepository.findByActivityId(id);
         for(Procedure p : procedures){
             procedureRepository.delete(p);
         }
@@ -107,6 +107,10 @@ public class ActivityService {
      */
     public List<Activity> findAllActivities() {
         return activityRepository.findAll();
+    }
+
+    public List<Activity> findActivityByRoleId(String id){
+        return activityRepository.findByRoleId(new ObjectId(id));
     }
 
     public Optional<Activity> findActivityByName(String name){
