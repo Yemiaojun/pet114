@@ -2,9 +2,11 @@ package com.example.wechat.controller;
 
 import com.example.wechat.model.Activity;
 import com.example.wechat.model.Assay;
+import com.example.wechat.model.Procedure;
 import com.example.wechat.model.Role;
 import com.example.wechat.service.ActivityService;
 import com.example.wechat.service.AssayService;
+import com.example.wechat.service.FileStorageService;
 import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ import java.util.Optional;
 public class ActivityController {
     @Autowired
     private ActivityService activityService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     /**
      * 添加新的角色活动信息。
@@ -219,6 +224,51 @@ public class ActivityController {
         }
         return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或无权限"));
 
+    }
+
+    /**
+     * 上传流程资源。
+     *
+     * @param file     活动资源文件
+     * @param id       活动id
+     * @param type     资源类型（图片或视频）
+     * @param session  HTTP 会话
+     * @return 包含更新结果的 ResponseEntity
+     */
+    @ApiOperation(value = "上传活动资源", notes = "上传活动资源，需要管理员权限")
+    @PostMapping("/uploadResource")
+    public ResponseEntity<String> uploadResource(
+            @ApiParam(value = "流程资源文件", required = true) @RequestParam("file") MultipartFile file,
+            @ApiParam(value = "流程id", required = true) @RequestParam String id,
+            @ApiParam(value = "资源类型（pic 或 vid）", required = true) @RequestParam String type,
+            HttpSession session) {
+        String userIdStr = (String) session.getAttribute("userId");
+        if (userIdStr == null) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录"));
+        }
+        String userAuth = (String) session.getAttribute("authLevel");
+        if (!"2".equals(userAuth)) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查找权限"));
+        }
+
+        try {
+            Activity activity = activityService.findActivityById(id).orElseThrow(() -> new RuntimeException("过程不存在"));
+            String filePath;
+            if ("pic".equalsIgnoreCase(type)) {
+                filePath = fileStorageService.storeProcedurePic(file, file.getOriginalFilename());
+                activityService.updateActivityPicUrl(new ObjectId(id), filePath);
+                return ResponseEntity.ok(Result.okGetStringByData("图片更新成功", filePath));
+            } else if ("vid".equalsIgnoreCase(type)) {
+                filePath = fileStorageService.storeProcedureVid(file, id);
+                activityService.updateActivityVidUrl(new ObjectId(id), filePath);
+                return ResponseEntity.ok(Result.okGetStringByData("视频更新成功", filePath));
+            } else {
+                return ResponseEntity.badRequest().body(Result.errorGetString("不支持的资源类型"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Result.errorGetString("资源更新失败: " + e.getMessage()));
+        }
     }
 
 

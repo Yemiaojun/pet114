@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Random;
 
 @Service
 public class FileStorageService {
@@ -23,7 +24,7 @@ public class FileStorageService {
     @Value("file/procedurepic/")
     private String procedurePicDir;
 
-    @Value("file/procedurevid")
+    @Value("file/procedurevid/")
     private String procedureVidDir;
     public String storeAvatar(MultipartFile file, String username) throws IOException {
         if (file.isEmpty()) {
@@ -86,11 +87,10 @@ public class FileStorageService {
         if (file.isEmpty()) {
             throw new IOException("Failed to store empty file.");
         }
-
-        Path destinationPath = Paths.get(procedureVidDir + id + "_" + file.getOriginalFilename());
+        Path destinationPath = Paths.get(procedureVidDir + id  +"_" + file.getSize() +".mp4");
         Files.copy(file.getInputStream(), destinationPath);
 
-        return destinationPath.toString();
+        return  destinationPath.toString();
     }
 
     /**

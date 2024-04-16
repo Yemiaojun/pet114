@@ -114,6 +114,11 @@ public class ActivityService {
         return activityRepository.findAll();
     }
 
+    public Optional<Activity>  findActivityById(String id) throws IdNotFoundException{
+        Optional<Activity> optionalActivity = activityRepository.findById(new ObjectId(id));
+        if(optionalActivity.isPresent()) return optionalActivity;
+        else throw new IdNotFoundException("对应活动不存在");
+    }
     public List<Activity> findActivityByRoleId(String id){
         return activityRepository.findByRoleId(new ObjectId(id));
     }
@@ -136,5 +141,34 @@ public class ActivityService {
         activityRepository.save(updating);
         return fileId;
 
+    }
+    public void updateActivityPicUrl(ObjectId id, String picUrl) {
+        var activityOptional = activityRepository.findById(id);
+        if (activityOptional.isPresent()) {
+            Activity activity = activityOptional.get();
+            activity.getPicUrlList().add(picUrl); // 更新流程的图片URL
+            activityRepository.save(activity); // 保存更改
+        } else {
+            throw new IdNotFoundException("没有找到对应id"); // 抛出ID未找到异常
+        }
+    }
+
+
+    /**
+     * 上传流程的视频URL。
+     *
+     * @param id 流程ID
+     * @param vidUrl 视频URL
+     * @throws IdNotFoundException 如果找不到对应的流程ID，则抛出IdNotFoundException
+     */
+    public void updateActivityVidUrl(ObjectId id, String vidUrl) {
+        var activityOptional = activityRepository.findById(id);
+        if (activityOptional.isPresent()) {
+            Activity activity = activityOptional.get();
+            activity.getVideoUrlList().add(vidUrl); // 更新流程的图片URL
+            activityRepository.save(activity); // 保存更改
+        } else {
+            throw new IdNotFoundException("没有找到对应id"); // 抛出ID未找到异常
+        }
     }
 }

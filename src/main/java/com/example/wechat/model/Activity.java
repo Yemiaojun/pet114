@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Data
 @Document
 public class Activity {
@@ -22,4 +24,7 @@ public class Activity {
 
     @ApiModelProperty(value = "头像id", required = true)
     private String avatar;
+
+    private List<String> picUrlList;
+    private List<String> videoUrlList;
 }
