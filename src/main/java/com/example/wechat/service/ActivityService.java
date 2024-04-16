@@ -13,7 +13,9 @@ import com.example.wechat.repository.ProcedureRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +26,9 @@ public class ActivityService {
 
     @Autowired
     private ProcedureRepository procedureRepository;
+
+    @Autowired
+    private FileService fileService;
 
     /**
      * 添加一个新的角色活动信息。
@@ -115,5 +120,21 @@ public class ActivityService {
 
     public Optional<Activity> findActivityByName(String name){
         return activityRepository.findActivityByName(name);
+    }
+
+    public String uploadAvatar(MultipartFile file, String id)throws IOException {
+        String fileId = fileService.uploadFile(file);
+        ObjectId objectId = new ObjectId(id);
+        var existing = activityRepository.findById(objectId);
+
+        //存在性检查
+        if (!existing.isPresent()) throw new IdNotFoundException("对应实体不存在，无法更新图片");
+
+        var updating = existing.get();
+
+        updating.setAvatar(fileId);
+        activityRepository.save(updating);
+        return fileId;
+
     }
 }
