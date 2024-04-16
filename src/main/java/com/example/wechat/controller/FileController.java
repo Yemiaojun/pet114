@@ -50,9 +50,9 @@ public class FileController {
     }
 
     @ApiOperation(value = "根据文件id查找文件", notes = "返回符合条件的文件")
-    @GetMapping(path = "findFileById/{id}")
+    @GetMapping(path = "/findFileById")
     public ResponseEntity<ByteArrayResource> displayFile(
-            @ApiParam(name = "id", value = "图片id", required = true) @PathVariable String id)
+            @ApiParam(name = "id", value = "图片id", required = true, example = "saisunwoiudoiu") @RequestParam("id") String id)
             throws IOException {
         var fileResponse = fileService.displayFile(id);
         var bytes = fileResponse.getBytes();

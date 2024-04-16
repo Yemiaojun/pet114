@@ -11,8 +11,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class File {
 
+    @Id
     @JsonSerialize(using = ToStringSerializer.class)
-    private String id;
+    private ObjectId id;
     private String fileName;
     private String contentType;
     private byte[] bytes;
