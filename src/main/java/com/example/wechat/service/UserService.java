@@ -81,9 +81,9 @@ public class UserService {
         return null;
     }
 
-    public Optional<User> tryLogin(String username, String password) {
+    public Optional<User> tryLogin(String username, String password, String auth) {
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isPresent() && passwordEncoder.matches(password, userOptional.get().getPassword())) {
+        if (userOptional.isPresent() && passwordEncoder.matches(password, userOptional.get().getPassword()) && userOptional.get().getAuth().equals(auth)) {
             return userOptional;
         }
         return Optional.empty();
