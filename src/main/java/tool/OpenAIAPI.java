@@ -22,11 +22,11 @@ import java.util.Map;
 public class OpenAIAPI {
 
 
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "";
 
-    private static final String CHAT_BASE_URL = "/v1/chat/completions";
+    private static final String CHAT_BASE_URL = "https://ietowdbn.cloud.sealos.io/api";
 
-    private static final String CHAT_URL = "fastgpt-FN7MFGTXhfY97fqiDepooQroCATDVImx3fq2A1eMlk4XgV042rFVDWFaIYNYIA6wc";
+    private static final String CHAT_URL = "/v1/chat/completions";
 
 
     public String chat(String txt) {
@@ -38,6 +38,12 @@ public class OpenAIAPI {
         }});
         paramMap.put("messages", dataList);
         JSONObject message = null;
+
+        RestTemplate restTemplate = new RestTemplate(new SimpleClientHttpRequestFactory() {{
+            setProxy(new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890)));
+            setConnectTimeout(180000);
+            setReadTimeout(180000);
+        }});
 
         try {
             String body = HttpRequest.post(String.format(CHAT_BASE_URL, CHAT_URL))
