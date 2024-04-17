@@ -24,7 +24,7 @@ public class OpenAIAPI {
 
     private static final String API_KEY = "";
 
-    private static final String CHAT_BASE_URL = "https://ietowdbn.cloud.sealos.io/api";
+    private static final String CHAT_BASE_URL = "";
 
     private static final String CHAT_URL = "/v1/chat/completions";
 
