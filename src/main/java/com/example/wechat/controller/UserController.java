@@ -80,7 +80,8 @@ public class UserController {
 
         String username = credentials.get("username");
         String password = credentials.get("password");
-        Optional<User> userOptional = userService.tryLogin(username, password);
+        String auth = credentials.get("auth");
+        Optional<User> userOptional = userService.tryLogin(username, password,auth);
         if (userOptional.isPresent()) {
             // 登录成功，将用户ID和权限等级保存到会话中
             User user = userOptional.get();
