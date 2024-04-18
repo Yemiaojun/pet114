@@ -89,6 +89,7 @@ public class ExamService {
         newExam.setScore(score);
         newExam.setPrivate(false);
         newExam.setEveryone(everyone);
+        newExam.setParticipantList(new ArrayList<>());
 
         Date now = new Date();
         if (now.before(startTime)) {
