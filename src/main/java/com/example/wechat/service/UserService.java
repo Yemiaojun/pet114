@@ -175,7 +175,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUserById(String userId) {
+    public void deleteUserById(String userId) throws DefaultException{
         ObjectId userObjId = new ObjectId(userId);
 
         User usr= userRepository.findById(userObjId).get();
@@ -217,6 +217,23 @@ public class UserService {
         updating.setAvatar(fileId);
         userRepository.save(updating);
         return fileId;
+
+    }
+
+    public void updateUser(User user)throws IOException {
+        var updating = userRepository.findById(user.getId());
+        if(!updating.isPresent()) throw new DefaultException("用户不存在");
+
+        var existed = userRepository.findByUsername(user.getUsername());
+        if(!existed.get().getId().equals(user.getId())) throw new DefaultException("ID已存在");
+
+        var up = existed.get();
+        up.setUsername(user.getUsername());
+        up.setPassword(user.getPassword());
+        up.setAuth(user.getAuth());
+        up.setSecurityQuestion(user.getSecurityQuestion());
+        up.setSecurityQuestionAnswer(user.getSecurityQuestionAnswer());
+
 
     }
 
