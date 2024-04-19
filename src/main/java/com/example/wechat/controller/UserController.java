@@ -323,7 +323,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "上传头像", notes = "用户可以上传一张图片来修改自己的头像，需要用户登录")
-    @PostMapping("/uploadAvatar")
+    @PostMapping("/uploadAvatar1")
     public ResponseEntity<String> uploadAvatar(
             @ApiParam(value = "头像文件", required = true) @RequestParam("file") MultipartFile file,
             HttpSession session) {
@@ -364,6 +364,33 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
+    }
+
+    @ApiOperation(value= "上传头像")//推荐使用这个
+    @PostMapping("/uploadAvatar")
+    public ResponseEntity<String> uploadAvatar(
+            @ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile multipartFile,
+            @ApiParam(value = "角色id", required = true) @RequestParam("id") String id,
+            HttpSession session
+    ){
+        // 检查会话中是否有用户ID和auth信息
+        String userIdStr = (String) session.getAttribute("userId");
+        String userAuth = (String) session.getAttribute("authLevel");
+
+
+
+        // 确认用户已登录且具有管理员权限
+        if (userIdStr != null && "2".equals(userAuth)) {
+            try{
+                userService.uploadAvatar(multipartFile,id);
+                return ResponseEntity.ok(Result.okGetString("上传文件成功"));
+            }catch (Exception e){
+                return ResponseEntity.badRequest().body(Result.errorGetString(e.getMessage()));
+
+            }
+        }
+        return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或无权限"));
+
     }
 
 
