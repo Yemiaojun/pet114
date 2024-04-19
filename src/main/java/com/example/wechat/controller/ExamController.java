@@ -307,14 +307,14 @@ public class ExamController {
     })
     @PostMapping("/joinExam")
     public ResponseEntity<String> joinExam(
-            @ApiParam(value = "考试ID", required = true) @RequestParam String examId,
+            @RequestBody Map<String, String> payload,
             HttpSession session) {
 
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).body(Result.errorGetString("用户未登录"));
         }
-
+        String examId = payload.get("examId");
         try {
             examService.joinExam(examId, userId);
             return ResponseEntity.ok(Result.okGetString("成功参加考试"));
