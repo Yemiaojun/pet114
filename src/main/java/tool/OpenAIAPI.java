@@ -30,7 +30,7 @@ public class OpenAIAPI {
     private static final String CHAT_URL = "/v1/chat/completions";
 
 
-    public String chat(String txt) {
+    public String chat(String txt,String id) {
         RestTemplate restTemplate = new RestTemplate(new SimpleClientHttpRequestFactory() {{
             setProxy(new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890)));
             setConnectTimeout(180000);
@@ -45,7 +45,7 @@ public class OpenAIAPI {
 
         // 构建请求体
         Map<String, Object> body = new HashMap<>();
-        body.put("chatId", "11");
+        body.put("chatId", id);
         body.put("stream", false);
         body.put("detail", false);
         List<Map<String, String>> messages = new ArrayList<>();
@@ -80,6 +80,6 @@ public class OpenAIAPI {
     }
 
     public static void main(String[] args) {
-        System.out.println(chat("请问如何治疗宠物肠炎"));
+        System.out.println(chat("请问如何治疗宠物肠炎","11a"));
     }
 }
