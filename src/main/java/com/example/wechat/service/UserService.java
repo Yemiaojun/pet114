@@ -178,6 +178,9 @@ public class UserService {
     public void deleteUserById(String userId) {
         ObjectId userObjId = new ObjectId(userId);
 
+        User usr= userRepository.findById(userObjId).get();
+        if(usr.getAuth() == "2") throw new DefaultException("无法删除管理员用户");
+
         // 删除用户的所有问题记录
         List<QuestionRecord> questionRecords = questionRecordRepository.findByUserId(userObjId);
         questionRecordRepository.deleteAll(questionRecords);

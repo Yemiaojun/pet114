@@ -362,7 +362,7 @@ public class UserController {
             userService.deleteUserById(userId);
             return ResponseEntity.ok(Result.okGetString("用户删除成功"));
         } catch (Exception e) {
-            return ResponseEntity.status(404).body(Result.errorGetString("用户未找到"));
+            return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
