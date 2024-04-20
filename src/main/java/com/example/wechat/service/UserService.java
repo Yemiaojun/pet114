@@ -55,6 +55,7 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword())); // 加密密码
         user.setAvatarUrl("file/headpic/default");
+        user.setAvatar("");
         User savedUser = userRepository.save(user);
         return Optional.of(savedUser);
     }

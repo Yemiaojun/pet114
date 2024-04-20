@@ -457,7 +457,8 @@ public class ExamController {
             @ApiResponse(code = 401, message = "用户未登录"),
             @ApiResponse(code = 404, message = "考试记录未找到")
     })
-    @GetMapping("/getExamRecordById")
+    @GetMapping("/getExamRecord" +
+            "ById")
     public ResponseEntity<String> getExamRecordById(
             @ApiParam(value = "考试记录ID", required = true) @RequestParam String recordId,
             HttpSession session) {
