@@ -55,6 +55,7 @@ public class OpenAIAPI {
         messages.add(message);
         body.put("messages", messages);
 
+
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
         try {
