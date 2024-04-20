@@ -122,7 +122,7 @@ public class CaseController {
     @ApiOperation(value = "通过病例id查找病例", notes = "通过病例id查找病例，需要管理员权限")
     @GetMapping("/findCaseById")
     public ResponseEntity<String> findCaseById(
-            @ApiParam(value = "病例id", required = true) @RequestBody String id,
+            @ApiParam(value = "病例id", required = true) String id,
             HttpSession session) {
         // 检查会话中是否有用户ID和auth信息
         String userIdStr = (String) session.getAttribute("userId");
