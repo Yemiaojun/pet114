@@ -1,6 +1,7 @@
 package com.example.wechat.controller;
 
 import com.example.wechat.DTO.RegisterRequestDTO;
+import com.example.wechat.model.Role;
 import com.example.wechat.service.FileStorageService;
 import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
@@ -416,6 +417,31 @@ public class UserController {
         }
         return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或无权限"));
 
+    }
+
+    /**
+     * 根据角色ID获取设备信息。
+     *
+     * @param session HTTP会话
+     * @return ResponseEntity 包含角色信息的响应实体
+     */
+    @ApiOperation(value = "根据用户session获取角色")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "获取所有角色信息成功"),
+            @ApiResponse(code = 400, message = "用户未登录或不具备查看权限")
+    })
+    @GetMapping("/findCurrentUser")
+    public ResponseEntity<String> findUserById(
+            HttpSession session) {
+        // 检查用户权限
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            // 用户未登录或不具备管理员权限
+            return ResponseEntity.badRequest().body(Result.errorGetString("用户未登录或不具备查看权限"));
+        }
+
+        Optional<User> user= userService.findUserById(new ObjectId(userId));
+        return ResponseEntity.ok(Result.okGetStringByData("获取用户信息成功", user));
     }
 
 
