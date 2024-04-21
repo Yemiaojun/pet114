@@ -1,10 +1,14 @@
 package com.example.wechat.controller;
 
 import com.example.wechat.DTO.RegisterRequestDTO;
+import com.example.wechat.model.File;
 import com.example.wechat.model.Role;
 import com.example.wechat.service.FileStorageService;
 import io.swagger.annotations.*;
 import org.bson.types.ObjectId;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import utils.Result;
@@ -442,6 +446,30 @@ public class UserController {
 
         Optional<User> user= userService.findUserById(new ObjectId(userId));
         return ResponseEntity.ok(Result.okGetStringByData("获取用户信息成功", user));
+    }
+
+    @GetMapping("/getCurrentAvatar")
+    public ResponseEntity<ByteArrayResource> getAvatar(HttpSession session){
+        // 检查用户权限
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            System.out.println("登录错误");
+            // 用户未登录或不具备管理员权限
+            return null;
+        }
+        try{
+        File fileResponse = userService.getCurrentAvatar(userId);
+            var bytes = fileResponse.getBytes();
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(fileResponse.getContentType()))
+                    .contentLength(bytes.length)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileResponse.getFileName() + "\"")
+                    .body(new ByteArrayResource(bytes));
+        }catch (Exception e){
+            System.out.println("登录错误");
+            return null;
+        }
     }
 
 

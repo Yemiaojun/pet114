@@ -2,10 +2,7 @@ package com.example.wechat.service;
 
 import com.example.wechat.exception.DefaultException;
 import com.example.wechat.exception.IdNotFoundException;
-import com.example.wechat.model.Exam;
-import com.example.wechat.model.ExamRecord;
-import com.example.wechat.model.QuestionRecord;
-import com.example.wechat.model.User;
+import com.example.wechat.model.*;
 import com.example.wechat.repository.ExamRecordRepository;
 import com.example.wechat.repository.ExamRepository;
 import com.example.wechat.repository.QuestionRecordRepository;
@@ -236,6 +233,10 @@ public class UserService {
         up.setSecurityQuestionAnswer(user.getSecurityQuestionAnswer());
 
 
+    }
+    public File getCurrentAvatar(String id) throws IOException{
+        User user = userRepository.findById(new ObjectId(id)).get();
+        return fileService.displayFile(user.getAvatar());
     }
 
 
