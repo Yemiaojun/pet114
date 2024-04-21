@@ -384,7 +384,7 @@ public class UserController {
 
 
         // 确认用户已登录且具有管理员权限
-        if (userIdStr != null && "2".equals(userAuth)) {
+        if (userIdStr != null ) {
             try{
                 userService.uploadAvatar(multipartFile,userIdStr);
                 return ResponseEntity.ok(Result.okGetString("上传文件成功"));
