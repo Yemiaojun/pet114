@@ -395,11 +395,9 @@ public class ExamController {
         }
 
         List<ExamRecord> records = examRecordService.findExamRecordsByExamId(examId, sort, status);
-        if (records.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.errorGetString("考试记录未找到"));
-        } else {
+       
             return ResponseEntity.ok(Result.okGetStringByData("获取考试记录成功", records));
-        }
+
     }
 
 
