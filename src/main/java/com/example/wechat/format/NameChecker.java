@@ -10,7 +10,7 @@ public class NameChecker {
         if (name == null || name.trim().isEmpty()) throw new DefaultException("名字不能为空");
 
         // 检查名称长度是否在2到50之间
-        if (name.length() < 2 || name.length() > 50) throw new DefaultException("名字必须为2-50字之间");
+        if (name.length() <  1 || name.length() > 50) throw new DefaultException("名字必须为1-50字之间");
 
         // 检查名称中是否只包含汉语或英语字符
         Pattern pattern = Pattern.compile("^[\\u4e00-\\u9fa5a-zA-Z]+$");
