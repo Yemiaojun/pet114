@@ -150,6 +150,7 @@ public class QuestionService {
             examRecord.setExam(exam);
             examRecord.setUser(user);
             examRecord.setScore(0); // 初始化得分为0
+            examRecord.setStatus("未完成");
         }
         if(examRecord.getStatus().equals("已完成")){
             throw new DefaultException("你已经进行过此考试");
